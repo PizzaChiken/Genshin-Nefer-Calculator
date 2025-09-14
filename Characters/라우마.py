@@ -219,7 +219,7 @@ class LaumaQAttackEffect:
                 SkillLevel = 13 if self.Constellation >= 3 else 10
 
             assert SkillLevel in [13, 10]
-            Multiplier = 4.723 if SkillLevel == 10 else 4.0
+            Multiplier = 4.723 if SkillLevel == 13 else 4.0
 
             Constellation = self.Character.Constellation if self.Character is not None else self.Constellation
                 
