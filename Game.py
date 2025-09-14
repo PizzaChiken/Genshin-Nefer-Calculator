@@ -51,16 +51,20 @@ class Game:
     def ApplyBuffs(self):
         for Character in self.Characters:
             Character.initBuffedStat()
+        for Character in self.Characters:
             for Buff in self.BuffList:
                 Buff.Apply(Character, Print=self.PrintAll)
+        for Character in self.Characters:
             for Buff in self.ProportionalBuffList:
                 Buff.Apply(Character, Print=self.PrintAll)
     
     def ApplyDebuffs(self):
         for Enemy in self.Enemys:
             Enemy.initDebuffedStat()
+        for Enemy in self.Enemys:
             for Debuff in self.DebuffList:
                 Debuff.Apply(Enemy, Print=self.PrintAll)
+        for Enemy in self.Enemys:
             for Debuff in self.ProportionalDebuffList:
                 Debuff.Apply(Enemy, Print=self.PrintAll)
 
@@ -79,7 +83,7 @@ class Game:
         assert SkillType in [None, 'Normal', 'Charge', 'Plunging', 'Skill', 'Ult']
         assert DMGType in [None, 'Normal', 'Charge', 'Plunging', 'Skill', 'Ult']
         if AttackType in ['DirectLunarCharged', 'DirectLunarBloom']:
-            assert SkillType == DMGType == Reaction == None
+            assert DMGType == Reaction == None
 
         for AttackEffect in self.AttackEffectList:
             AttackingCharacterStatNew, TargetedEnemyStatNew = AttackEffect.Apply(AttackingCharacter, TargetedEnemy, AttackingCharacterStat.copy(), TargetedEnemyStat.copy(), AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -194,6 +198,8 @@ class Game:
             BaseDMG = HP * Multiplier['HP'] + ATK * Multiplier['ATK'] + DEF * Multiplier['DEF'] + EM * Multiplier['EM']
             
             BaseDMG = BaseDMG * (1 + AttackingCharacterStat['LunarChargedBaseDMGBonus'])
+
+           
 
             EMBonus = (6 * EM) / (EM + 2000)
 

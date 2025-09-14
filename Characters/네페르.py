@@ -105,6 +105,21 @@ class NeferClass:
         print(self.BaseStat)
         print('\n')
 
+    def DisplayBuffedStat(self):
+        print(f'{self.Name} Level            : {self.BuffedStat['Level']}')
+        print(f'{self.Name} HP               : {self.BuffedStat['BaseHP'] * (1 + self.BuffedStat['%HP']) + self.BuffedStat['AdditiveHP']}')
+        print(f'{self.Name} ATK              : {self.BuffedStat['BaseATK'] * (1 + self.BuffedStat['%ATK']) + self.BuffedStat['AdditiveATK']}')
+        print(f'{self.Name} DEF              : {self.BuffedStat['BaseDEF'] * (1 + self.BuffedStat['%DEF']) + self.BuffedStat['AdditiveDEF']}')
+        print(f'{self.Name} EM               : {self.BuffedStat['EM']}')
+        print(f'{self.Name} ER               : {self.BuffedStat['ER']}')
+        print(f'{self.Name} CR               : {self.BuffedStat['CR']}')
+        print(f'{self.Name} CD               : {self.BuffedStat['CD']}')
+        print(f'{self.Name} ElementalDMGBonus: {self.BuffedStat[f'{self.Element}DMGBonus']}')
+        print(f'{self.Name} DMGBonus         : {self.BuffedStat[f'DMGBonus']}')
+        print('\n')
+        print(self.BuffedStat)
+        print('\n')
+
         
     def NA1(self, TargetedEnemy, Reaction=None, Print=True):
         AttackName = '일반공격 1단'
@@ -157,7 +172,7 @@ class NeferClass:
         return DMG
     
     def SkillCANefer1(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '환희 (네페르) 1단'
+        AttackName = '강공격 환희 (네페르) 1단'
         AttackType = 'Basic'
         AttackElement = 'Dendro'
         SkillType = 'Charge'
@@ -182,7 +197,7 @@ class NeferClass:
         return DMG
 
     def SkillCANefer2(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '환희 (네페르) 2단'
+        AttackName = '강공격 환희 (네페르) 2단'
         AttackType = 'Basic'
         AttackElement = 'Dendro'
         SkillType = 'Charge'
@@ -207,10 +222,10 @@ class NeferClass:
         return DMG
     
     def SkillCANefer2C6(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '환희 (네페르) 2단 6돌'
+        AttackName = '강공격 환희 (네페르) 2단 6돌'
         AttackType = 'DirectLunarBloom'
         AttackElement = 'Dendro'
-        SkillType = None
+        SkillType = 'Charge'
         DMGType = None
         
         Multiplier = {'HP' : 0., 'ATK' : 0, 'DEF' : 0., 'EM' : 0.85}
@@ -230,10 +245,10 @@ class NeferClass:
         return DMG
     
     def SkillCAShade1(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '환희 (환영) 1단'
+        AttackName = '강공격 환희 (환영) 1단'
         AttackType = 'DirectLunarBloom'
         AttackElement = 'Dendro'
-        SkillType = None
+        SkillType = 'Charge'
         DMGType = None
         
         if self.SkillLevel['Skill'] == 10:
@@ -258,10 +273,10 @@ class NeferClass:
         return DMG
     
     def SkillCAShade2(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '환희 (환영) 2단'
+        AttackName = '강공격 환희 (환영) 2단'
         AttackType = 'DirectLunarBloom'
         AttackElement = 'Dendro'
-        SkillType = None
+        SkillType = 'Charge'
         DMGType = None
         
         if self.SkillLevel['Skill'] == 10:
@@ -286,10 +301,10 @@ class NeferClass:
         return DMG
     
     def SkillCAShade3(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '환희 (환영) 3단'
+        AttackName = '강공격 환희 (환영) 3단'
         AttackType = 'DirectLunarBloom'
         AttackElement = 'Dendro'
-        SkillType = None
+        SkillType = 'Charge'
         DMGType = None
         
         if self.SkillLevel['Skill'] == 10:
@@ -314,10 +329,10 @@ class NeferClass:
         return DMG
     
     def SkillCAFinalC6(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '환희 6돌 추가'
+        AttackName = '강공격 환희 6돌 추가'
         AttackType = 'DirectLunarBloom'
         AttackElement = 'Dendro'
-        SkillType = None
+        SkillType = 'Charge'
         DMGType = None
         
         Multiplier = {'HP' : 0., 'ATK' : 0, 'DEF' : 0., 'EM' : 1.2}

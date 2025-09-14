@@ -5,11 +5,12 @@ class NeferSignature: # 네페르전무
         EM = [80, 100, 120, 140, 160]
         CD = [0.24, 0.30, 0.36, 0.42, 0.48]
 
+        CD_Bonus = CD[Refinements] * 1.5 if LunarBloomActive else CD[Refinements]
+
         self.StatList = {
             'BaseATK' : 542,
-            'CD' : 0.882,
+            'CD' : 0.882 + CD_Bonus,
             'CR' : CR[Refinements],
             'EM' : EM[Refinements] * 1.5 if LunarBloomActive else EM[Refinements],
-            'CD' : CD[Refinements] * 1.5 if LunarBloomActive else CD[Refinements]
         }
         self.EffectList = []

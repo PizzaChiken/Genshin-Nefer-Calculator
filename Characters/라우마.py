@@ -1,3 +1,170 @@
+from Game import Game
+
+class LaumaClass:
+    def __init__(self, Game : Game, Level=90, SkillLevel = {'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation = 0, Moonsign=2):
+        self.Name = 'Lauma'
+        self.Element = 'Dendro'
+        self.Game = Game
+
+        if Level == 90:
+            BaseHP = 10654
+            BaseATK = 255
+            BaseDEF = 669
+        elif Level == 100:
+            BaseHP = 11411
+            BaseATK = 312
+            BaseDEF = 716
+        else:
+            raise ValueError
+
+        self.BaseStat = {
+            'Level' : Level,
+            'BaseHP' : BaseHP,
+            'BaseATK' : BaseATK,
+            'BaseDEF' : BaseDEF,
+            '%HP' : 0,
+            '%ATK' : 0,
+            '%DEF' : 0,
+            'AdditiveHP' : 0,
+            'AdditiveATK' : 0,
+            'AdditiveDEF' : 0,
+            'EM' : 315,
+            'ER' : 1.0,
+            'CR' : 0.05,
+            'CD' : 0.5,
+            'BaseDMGMultiplier' : 0, # 곱연산 피증 (ex,느비 특성) (버프 계산시 100% 뺴야함)
+            'AdditiveBaseDMGBonus' : 0,
+            'PhysicalDMGBonus' : 0,
+            'AnemoDMGBonus' : 0,
+            'GeoDMGBonus' : 0,
+            'ElectroDMGBonus' : 0,
+            'DendroDMGBonus' : 0,
+            'HydroDMGBonus' : 0,
+            'PyroDMGBonus' : 0,
+            'CyroDMGBonus' : 0,
+            'DMGBonus' : 0,
+            'ReactionBonus' : 0,
+            'DEFIgnored' : 0,
+            'LunarChargedBaseDMGBonus' : 0,
+            'LunarBloomBaseDMGBonus' : 0,
+            'ElevatedMultiplier' : 1.0 # 승격(버프 계산시 100% 뺴야함)
+        }
+        
+        self.SkillLevel = SkillLevel
+        self.Constellation = Constellation
+
+        if self.Constellation >= 3:
+            self.SkillLevel['Skill'] += 3
+        
+        if self.Constellation >= 5:
+            self.SkillLevel['Ult'] += 3
+
+        
+        self.Game.AddEffect(LaumaEDebuff(self))
+        self.Game.AddEffect(LaumaQAttackEffect(self, Moonsign))
+        self.Game.AddEffect(LaumaP1AttackEffect(self, Moonsign))
+        self.Game.AddEffect(LaumaP2AttackEffect(self))
+        self.Game.AddEffect(LaumaP3Buff(self))
+        self.Game.AddEffect(LaumaC6AttackEffect(self))
+    
+    def initBuffedStat(self):
+        self.BuffedStat = self.BaseStat.copy()
+    
+    def AddWeapon(self, Weapon):
+        for Stat in Weapon.StatList.keys():
+            self.BaseStat[Stat] += Weapon.StatList[Stat]
+        for Effect in Weapon.EffectList:
+            self.Game.AddEffect(Effect)
+    
+    def AddArtifactSet(self, ArtifactSet):
+        for Stat in ArtifactSet.StatList.keys():
+            self.BaseStat[Stat] +=  ArtifactSet.StatList[Stat]
+        for Effect in ArtifactSet.EffectList:
+            self.Game.AddEffect(Effect)
+    
+    def AddArtifacts(self, Artifacts):
+        for Artifact in Artifacts:
+            for Stat in Artifact.keys():
+                self.BaseStat[Stat] += Artifact[Stat]
+
+    def DisplayBuffedStat(self):
+        print(f'{self.Name} Level            : {self.BuffedStat['Level']}')
+        print(f'{self.Name} HP               : {self.BuffedStat['BaseHP'] * (1 + self.BuffedStat['%HP']) + self.BuffedStat['AdditiveHP']}')
+        print(f'{self.Name} ATK              : {self.BuffedStat['BaseATK'] * (1 + self.BuffedStat['%ATK']) + self.BuffedStat['AdditiveATK']}')
+        print(f'{self.Name} DEF              : {self.BuffedStat['BaseDEF'] * (1 + self.BuffedStat['%DEF']) + self.BuffedStat['AdditiveDEF']}')
+        print(f'{self.Name} EM               : {self.BuffedStat['EM']}')
+        print(f'{self.Name} ER               : {self.BuffedStat['ER']}')
+        print(f'{self.Name} CR               : {self.BuffedStat['CR']}')
+        print(f'{self.Name} CD               : {self.BuffedStat['CD']}')
+        print(f'{self.Name} ElementalDMGBonus: {self.BuffedStat[f'{self.Element}DMGBonus']}')
+        print(f'{self.Name} DMGBonus         : {self.BuffedStat[f'DMGBonus']}')
+        print('\n')
+        print(self.BuffedStat)
+        print('\n')
+
+    def DisplayBaseStat(self):
+        print(f'{self.Name} Level            : {self.BaseStat['Level']}')
+        print(f'{self.Name} HP               : {self.BaseStat['BaseHP'] * (1 + self.BaseStat['%HP']) + self.BaseStat['AdditiveHP']}')
+        print(f'{self.Name} ATK              : {self.BaseStat['BaseATK'] * (1 + self.BaseStat['%ATK']) + self.BaseStat['AdditiveATK']}')
+        print(f'{self.Name} DEF              : {self.BaseStat['BaseDEF'] * (1 + self.BaseStat['%DEF']) + self.BaseStat['AdditiveDEF']}')
+        print(f'{self.Name} EM               : {self.BaseStat['EM']}')
+        print(f'{self.Name} ER               : {self.BaseStat['ER']}')
+        print(f'{self.Name} CR               : {self.BaseStat['CR']}')
+        print(f'{self.Name} CD               : {self.BaseStat['CD']}')
+        print(f'{self.Name} ElementalDMGBonus: {self.BaseStat[f'{self.Element}DMGBonus']}')
+        print(f'{self.Name} DMGBonus         : {self.BaseStat[f'DMGBonus']}')
+        print('\n')
+        print(self.BaseStat)
+        print('\n')
+        
+    def Damage(self, TargetedEnemy, Reaction=None, Print=True):
+        AttackName = '일반공격 1단'
+        AttackType = 'Basic'
+        AttackElement = 'Pyro'
+        SkillType = 'Normal'
+        DMGType = 'Normal'
+        
+        if self.SkillLevel['Skill'] == 10:
+            Multiplier = {'HP' : 0., 'ATK' : 0., 'DEF' : 0., 'EM' : 0.}
+        elif self.SkillLevel['Skill'] == 13:
+            Multiplier = {'HP' : 0., 'ATK' : 0., 'DEF' : 0., 'EM' : 0}
+        else:
+            raise ValueError
+
+        AttackingCharacterStat = self.BuffedStat.copy()
+        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
+
+        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
+
+        DMG = self.Game.ApplyDMG(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+
+        if Print:
+            print(f'{self.Name} {AttackName} 피해 : {DMG}')
+        return DMG
+
+class LaumaP2AttackEffect: 
+    def __init__(self, Character):
+        self.Name = 'Lauma P2 E DMGBonus'
+        self.Proportional = True
+        self.Type = 'AttackEffect'
+
+        self.Character = Character
+
+    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
+        # 개화 반응 구현 X
+        
+        if AttackingCharacter == self.Character:
+            EM = self.Character.BuffedStat['EM']
+            DMGBonus = min(0.32, 0.0004 * EM)
+
+            if SkillType == 'Charge':
+                if 'LunarBloom' in AttackType:
+                    AttackingCharacterStat['ReactionBonus'] += DMGBonus
+                else: 
+                    AttackingCharacterStat['DMGBonus'] += DMGBonus
+
+        return AttackingCharacterStat, TargetedEnemyStat
+
 class LaumaEDebuff: 
     def __init__(self, Character=None, Constellation=0):
         self.Name = 'Lauma E Res'
@@ -11,9 +178,14 @@ class LaumaEDebuff:
         Stat1 = 'DendroRes'
         Stat2 = 'HydroRes'
 
-        Constellation = self.Character.Constellation if self.Character is not None else self.Constellation
+        if self.Character is not None:
+            SkillLevel = self.Character.SkillLevel['Skill']
+        else:
+            SkillLevel = 13 if self.Constellation >= 5 else 10
 
-        Amount = -0.34 if Constellation >= 3 else -0.25
+        assert SkillLevel in [10, 13]
+
+        Amount = -0.25 if SkillLevel == 10 else - 0.34
 
         DebuffedEnemy.DebuffedStat[Stat1] += Amount
         DebuffedEnemy.DebuffedStat[Stat2] += Amount
@@ -41,14 +213,20 @@ class LaumaQAttackEffect:
         if 'LunarBloom' in AttackType:
             
             EM = self.Character.BuffedStat['EM'] if self.Character is not None else self.EM
-            Constellation = self.Character.Constellation if self.Character is not None else self.Constellation
+            if self.Character is not None:
+                SkillLevel = self.Character.SkillLevel['Skill']
+            else:
+                SkillLevel = 13 if self.Constellation >= 3 else 10
 
-            Multiplier = 4.723 if Constellation >= 3 else 4.0
+            assert SkillLevel in [13, 10]
+            Multiplier = 4.723 if SkillLevel == 10 else 4.0
+
+            Constellation = self.Character.Constellation if self.Character is not None else self.Constellation
                 
-            if self.Constellation >= 2:
+            if Constellation >= 2:
                 Multiplier += 4.0
                 if self.Moonsign == 2:
-                    AttackingCharacterStat['ReactionBonus'] + 0.4
+                    AttackingCharacterStat['ReactionBonus'] += 0.4
                 
             AttackingCharacterStat['AdditiveBaseDMGBonus'] += EM * Multiplier
         
@@ -77,7 +255,7 @@ class LaumaP1AttackEffect:
         return AttackingCharacterStat, TargetedEnemyStat
     
     
-class LaumaP2Buff: 
+class LaumaP3Buff: 
     def __init__(self, Character=None, EM=None):
         self.Name = 'Lauma P2 LunarBloomDMG'
         self.Proportional = True
@@ -85,8 +263,6 @@ class LaumaP2Buff:
 
         self.Character = Character
         self.EM = EM
-
-
         
     def Apply(self, BuffedCharacter, Print):
         Stat = 'LunarBloomBaseDMGBonus'
@@ -121,5 +297,5 @@ def AddLaumaTemp(Game, Constellation, EM, Moonsign):
     Game.AddEffect(LaumaEDebuff(Constellation=Constellation))
     Game.AddEffect(LaumaQAttackEffect(Constellation=Constellation, EM=EM, Moonsign=Moonsign))
     Game.AddEffect(LaumaP1AttackEffect(Moonsign=Moonsign))
-    Game.AddEffect(LaumaP2Buff(EM=EM))
+    Game.AddEffect(LaumaP3Buff(EM=EM))
     Game.AddEffect(LaumaC6AttackEffect(Constellation=Constellation))
