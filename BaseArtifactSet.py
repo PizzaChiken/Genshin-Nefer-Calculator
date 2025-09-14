@@ -1,42 +1,40 @@
 class BaseArtifactSet:
-    def __init__(self, Character, PC):
+    def __init__(self, Game, Character, PC):
         assert PC in [2, 4]
 
         self.StatList = {
             'EM' : 80 
         }
-        if PC == 4:
-            self.BuffList = []
-            self.DebuffList = []
-            self.AttackEffectList = []
-        else:
-            self.BuffList = []
-            self.DebuffList = []
-            self.AttackEffectList = []
+        self.EffectList = []
 
 # 파티버프
 class BasicBuff: 
-    def __init__(self, Character=None, PC=4):
+    def __init__(self, Game, Character=None, PC=4):
         self.Name = 'Basic버프'
         self.Proportional = False
         self.Type = 'Buff'
 
+        self.Game = Game
         self.Character = Character
-        self.Refinments = PC
+        self.PC = PC
 
     def Apply(self, BuffedCharacter, Print):
         Stat = ''
         Amount = 0
         BuffedCharacter.BuffedStat[Stat] += Amount
+        # self.Proportional = True 일경우 
+        # BuffedCharacter.FinalStat[Stat] += Amount
         if Print:
              print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.BuffedStat[Stat]:<5.3f}")
+            # self.Proportional = True 일경우 
+            #print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.FinalStat[Stat]:<5.3f}")
 
 class BasicDebuff: 
-    def __init__(self, Character=None, PC=4):
+    def __init__(self, Game, Character=None, PC=4):
         self.Name = 'Basic디버프'
-        self.Proportional = False
         self.Type = 'Debuff'
 
+        self.Game = Game
         self.Character = Character
         self.PC = PC
 
@@ -47,14 +45,13 @@ class BasicDebuff:
         if Print:
              print(f"Debuff | {self.Name :<40} | {DebuffedEnemy.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {DebuffedEnemy.DebuffedStat[Stat]:<5.3f}")
 
-        pass
 
 class BasicAttackEffect: 
-    def __init__(self, Character=None, PC=4):
+    def __init__(self, Game, Character=None, PC=4):
         self.Name = 'Basic공격효과'
-        self.Proportional = False
         self.Type = 'AttackEffect'
-
+        
+        self.Game = Game
         self.Character = Character
         self.PC = PC
 

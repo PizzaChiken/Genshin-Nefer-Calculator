@@ -1,9 +1,9 @@
 class NotNordAttackEffect: 
-    def __init__(self, ReactionBonus):
+    def __init__(self, Game, ReactionBonus):
         self.Name = 'Not Nord LunarDMGBonus'
-        self.Proportional = False
         self.Type = 'AttackEffect'
 
+        self.Game =Game
         self.ReactionBonus = ReactionBonus
 
     def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
@@ -12,4 +12,4 @@ class NotNordAttackEffect:
         return AttackingCharacterStat, TargetedEnemyStat
     
 def AddNotNordTemp(Game, ReactionBonus):
-    Game.AddEffect(NotNordAttackEffect(ReactionBonus))
+    Game.AddEffect(NotNordAttackEffect(Game, ReactionBonus))

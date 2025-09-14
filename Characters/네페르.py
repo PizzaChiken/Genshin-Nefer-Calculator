@@ -62,17 +62,22 @@ class NeferClass:
             self.SkillLevel['Ult'] += 3
 
 
-        self.Game.AddEffect(NeferUltAttackEffect(self))
-        self.Game.AddEffect(NeferP1EMBuff(self))
-        self.Game.AddEffect(NeferP1MultiplierAttackEffect(self))
-        self.Game.AddEffect(NeferP2Buff(self))
-        self.Game.AddEffect(NeferP3Buff(self))
-        self.Game.AddEffect(NeferC4AttackEffect(self))
-        self.Game.AddEffect(NeferC6AttackEffect(self))
+        self.Game.AddEffect(NeferUltAttackEffect(Game, self))
+        self.Game.AddEffect(NeferP1EMBuff(Game, self))
+        self.Game.AddEffect(NeferP1MultiplierAttackEffect(Game, self))
+        self.Game.AddEffect(NeferP2Buff(Game, self))
+        self.Game.AddEffect(NeferP3Buff(Game, self))
+        self.Game.AddEffect(NeferC4AttackEffect(Game, self))
+        self.Game.AddEffect(NeferC6AttackEffect(Game, self))
         
     
     def initBuffedStat(self):
+        # 비례버프 아닌 스택 적용
         self.BuffedStat = self.BaseStat.copy()
+    
+    def initFinalStat(self):
+        # 비례버프 받은 뒤 최종 스탯
+        self.FinalStat = self.BuffedStat.copy()
     
     def AddWeapon(self, Weapon):
         for Stat in Weapon.StatList.keys():
@@ -106,19 +111,19 @@ class NeferClass:
         print(self.BaseStat)
         print('\n')
 
-    def DisplayBuffedStat(self):
-        print(f'{self.Name} Level            : {self.BuffedStat['Level']}')
-        print(f'{self.Name} HP               : {self.BuffedStat['BaseHP'] * (1 + self.BuffedStat['%HP']) + self.BuffedStat['AdditiveHP']}')
-        print(f'{self.Name} ATK              : {self.BuffedStat['BaseATK'] * (1 + self.BuffedStat['%ATK']) + self.BuffedStat['AdditiveATK']}')
-        print(f'{self.Name} DEF              : {self.BuffedStat['BaseDEF'] * (1 + self.BuffedStat['%DEF']) + self.BuffedStat['AdditiveDEF']}')
-        print(f'{self.Name} EM               : {self.BuffedStat['EM']}')
-        print(f'{self.Name} ER               : {self.BuffedStat['ER']}')
-        print(f'{self.Name} CR               : {self.BuffedStat['CR']}')
-        print(f'{self.Name} CD               : {self.BuffedStat['CD']}')
-        print(f'{self.Name} ElementalDMGBonus: {self.BuffedStat[f'{self.Element}DMGBonus']}')
-        print(f'{self.Name} DMGBonus         : {self.BuffedStat[f'DMGBonus']}')
+    def DisplayFinalStat(self):
+        print(f'{self.Name} Level            : {self.FinalStat['Level']}')
+        print(f'{self.Name} HP               : {self.FinalStat['BaseHP'] * (1 + self.FinalStat['%HP']) + self.FinalStat['AdditiveHP']}')
+        print(f'{self.Name} ATK              : {self.FinalStat['BaseATK'] * (1 + self.FinalStat['%ATK']) + self.FinalStat['AdditiveATK']}')
+        print(f'{self.Name} DEF              : {self.FinalStat['BaseDEF'] * (1 + self.FinalStat['%DEF']) + self.FinalStat['AdditiveDEF']}')
+        print(f'{self.Name} EM               : {self.FinalStat['EM']}')
+        print(f'{self.Name} ER               : {self.FinalStat['ER']}')
+        print(f'{self.Name} CR               : {self.FinalStat['CR']}')
+        print(f'{self.Name} CD               : {self.FinalStat['CD']}')
+        print(f'{self.Name} ElementalDMGBonus: {self.FinalStat[f'{self.Element}DMGBonus']}')
+        print(f'{self.Name} DMGBonus         : {self.FinalStat[f'DMGBonus']}')
         print('\n')
-        print(self.BuffedStat)
+        print(self.FinalStat)
         print('\n')
 
         
@@ -136,7 +141,7 @@ class NeferClass:
         else:
             raise NotImplementedError
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -161,7 +166,7 @@ class NeferClass:
         else:
             raise NotImplementedError
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -186,7 +191,7 @@ class NeferClass:
         else:
             raise NotImplementedError
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -211,7 +216,7 @@ class NeferClass:
         else:
             raise NotImplementedError
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -234,7 +239,7 @@ class NeferClass:
         if self.Constellation >= 1:
             Multiplier['EM'] += 0.6
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -262,7 +267,7 @@ class NeferClass:
         if self.Constellation >= 1:
             Multiplier['EM'] += 0.6
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -290,7 +295,7 @@ class NeferClass:
         if self.Constellation >= 1:
             Multiplier['EM'] += 0.6
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -318,7 +323,7 @@ class NeferClass:
         if self.Constellation >= 1:
             Multiplier['EM'] += 0.6
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -341,7 +346,7 @@ class NeferClass:
         if self.Constellation >= 1:
             Multiplier['EM'] += 0.6
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -366,7 +371,7 @@ class NeferClass:
         else:
             raise NotImplementedError
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -391,7 +396,7 @@ class NeferClass:
         else:
             raise NotImplementedError
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -438,10 +443,11 @@ class NeferClass:
 # 개인버프
 
 class NeferUltAttackEffect: 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Nefer Ult DMGMultiplier'
-        self.Proportional = False
         self.Type = 'AttackEffect'
+
+        self.Game=Game
         self.Character = Character
 
     def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
@@ -463,10 +469,12 @@ class NeferUltAttackEffect:
         return AttackingCharacterStat, TargetedEnemyStat
     
 class NeferP1EMBuff: # (범용상황, 범용버프) + (범용상황, 특정버프) + (특정상황, 특정버프) 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Nefer P1 EM'
         self.Proportional = False
         self.Type = 'Buff'
+
+        self.Game = Game
         self.Character = Character
 
     def Apply(self, BuffedCharacter, Print):
@@ -482,10 +490,11 @@ class NeferP1EMBuff: # (범용상황, 범용버프) + (범용상황, 특정버�
 
 
 class NeferP1MultiplierAttackEffect: 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Nefer P1 CA DMGMultiplier'
-        self.Proportional = False
         self.Type = 'AttackEffect'
+
+        self.Game = Game
         self.Character = Character
         
     def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
@@ -499,12 +508,13 @@ class NeferP1MultiplierAttackEffect:
         
         return AttackingCharacterStat, TargetedEnemyStat
     
-    
 class NeferP2Buff: 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Nefer P2 ATK Bonus'
         self.Proportional = True
         self.Type = 'Buff'
+        
+        self.Game = Game
         self.Character = Character
     
     def Apply(self, BuffedCharacter, Print):
@@ -514,15 +524,17 @@ class NeferP2Buff:
             EM = self.Character.BuffedStat['EM']
             Amount = min(200, (EM - 500) * 0.4) if EM >= 500 else 0
 
-            BuffedCharacter.BuffedStat[Stat] += Amount
+            BuffedCharacter.FinalStat[Stat] += Amount
             if Print:
-                print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.BuffedStat[Stat]:<5.3f}")
+                print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.FinalStat[Stat]:<5.3f}")
 
 class NeferP3Buff: 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Nefer P3 LunarBloomDMG'
         self.Proportional = True
         self.Type = 'Buff'
+
+        self.Game = Game
         self.Character = Character
 
     def Apply(self, BuffedCharacter, Print):
@@ -530,16 +542,17 @@ class NeferP3Buff:
         EM = self.Character.BuffedStat['EM'] 
         Amount = min(0.14, EM * 0.000175)
 
-        BuffedCharacter.BuffedStat[Stat] += Amount
+        BuffedCharacter.FinalStat[Stat] += Amount
         if Print:
-             print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.BuffedStat[Stat]:<5.3f}")
+             print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.FinalStat[Stat]:<5.3f}")
 
     
 class NeferC4AttackEffect: 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Nefer C4 Res'
-        self.Proportional = False
         self.Type = 'AttackEffect'
+
+        self.Game = Game
         self.Character = Character
 
     def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
@@ -552,17 +565,19 @@ class NeferC4AttackEffect:
 
 
 class NeferC6AttackEffect: 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Nefer C6 Elevated'
         self.Proportional = False
         self.Type = 'AttackEffect'
 
+        self.Game = Game
         self.Character = Character
 
     def Apply(self, AttackCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
         if AttackCharacter == self.Character:
             if 'LunarBloom' in AttackType:
                 if self.Character.Constellation >= 6:
-                    AttackingCharacterStat['ElevatedMultiplier'] += 0.15
+                    if self.Character.Moonsign==2:
+                        AttackingCharacterStat['ElevatedMultiplier'] += 0.15
 
         return AttackingCharacterStat, TargetedEnemyStat

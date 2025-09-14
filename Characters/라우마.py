@@ -61,15 +61,20 @@ class LaumaClass:
             self.SkillLevel['Ult'] += 3
 
         
-        self.Game.AddEffect(LaumaEDebuff(self))
-        self.Game.AddEffect(LaumaQAttackEffect(self))
-        self.Game.AddEffect(LaumaP1AttackEffect(self))
-        self.Game.AddEffect(LaumaP2AttackEffect(self))
-        self.Game.AddEffect(LaumaP3Buff(self))
-        self.Game.AddEffect(LaumaC6AttackEffect(self))
+        self.Game.AddEffect(LaumaEDebuff(Game, self))
+        self.Game.AddEffect(LaumaQAttackEffect(Game, self))
+        self.Game.AddEffect(LaumaP1AttackEffect(Game, self))
+        self.Game.AddEffect(LaumaP2AttackEffect(Game, self))
+        self.Game.AddEffect(LaumaP3Buff(Game, self))
+        self.Game.AddEffect(LaumaC6AttackEffect(Game, self))
     
     def initBuffedStat(self):
+        # 비례버프 아닌 스택 적용
         self.BuffedStat = self.BaseStat.copy()
+    
+    def initFinalStat(self):
+        # 비례버프 받은 뒤 최종 스탯
+        self.FinalStat = self.BuffedStat.copy()
     
     def AddWeapon(self, Weapon):
         for Stat in Weapon.StatList.keys():
@@ -88,21 +93,6 @@ class LaumaClass:
             for Stat in Artifact.keys():
                 self.BaseStat[Stat] += Artifact[Stat]
 
-    def DisplayBuffedStat(self):
-        print(f'{self.Name} Level            : {self.BuffedStat['Level']}')
-        print(f'{self.Name} HP               : {self.BuffedStat['BaseHP'] * (1 + self.BuffedStat['%HP']) + self.BuffedStat['AdditiveHP']}')
-        print(f'{self.Name} ATK              : {self.BuffedStat['BaseATK'] * (1 + self.BuffedStat['%ATK']) + self.BuffedStat['AdditiveATK']}')
-        print(f'{self.Name} DEF              : {self.BuffedStat['BaseDEF'] * (1 + self.BuffedStat['%DEF']) + self.BuffedStat['AdditiveDEF']}')
-        print(f'{self.Name} EM               : {self.BuffedStat['EM']}')
-        print(f'{self.Name} ER               : {self.BuffedStat['ER']}')
-        print(f'{self.Name} CR               : {self.BuffedStat['CR']}')
-        print(f'{self.Name} CD               : {self.BuffedStat['CD']}')
-        print(f'{self.Name} ElementalDMGBonus: {self.BuffedStat[f'{self.Element}DMGBonus']}')
-        print(f'{self.Name} DMGBonus         : {self.BuffedStat[f'DMGBonus']}')
-        print('\n')
-        print(self.BuffedStat)
-        print('\n')
-
     def DisplayBaseStat(self):
         print(f'{self.Name} Level            : {self.BaseStat['Level']}')
         print(f'{self.Name} HP               : {self.BaseStat['BaseHP'] * (1 + self.BaseStat['%HP']) + self.BaseStat['AdditiveHP']}')
@@ -116,6 +106,21 @@ class LaumaClass:
         print(f'{self.Name} DMGBonus         : {self.BaseStat[f'DMGBonus']}')
         print('\n')
         print(self.BaseStat)
+        print('\n')
+
+    def DisplayFinalStat(self):
+        print(f'{self.Name} Level            : {self.FinalStat['Level']}')
+        print(f'{self.Name} HP               : {self.FinalStat['BaseHP'] * (1 + self.FinalStat['%HP']) + self.FinalStat['AdditiveHP']}')
+        print(f'{self.Name} ATK              : {self.FinalStat['BaseATK'] * (1 + self.FinalStat['%ATK']) + self.FinalStat['AdditiveATK']}')
+        print(f'{self.Name} DEF              : {self.FinalStat['BaseDEF'] * (1 + self.FinalStat['%DEF']) + self.FinalStat['AdditiveDEF']}')
+        print(f'{self.Name} EM               : {self.FinalStat['EM']}')
+        print(f'{self.Name} ER               : {self.FinalStat['ER']}')
+        print(f'{self.Name} CR               : {self.FinalStat['CR']}')
+        print(f'{self.Name} CD               : {self.FinalStat['CD']}')
+        print(f'{self.Name} ElementalDMGBonus: {self.FinalStat[f'{self.Element}DMGBonus']}')
+        print(f'{self.Name} DMGBonus         : {self.FinalStat[f'DMGBonus']}')
+        print('\n')
+        print(self.FinalStat)
         print('\n')
         
     def Damage(self, TargetedEnemy, Reaction=None, Print=True):
@@ -132,7 +137,7 @@ class LaumaClass:
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -145,10 +150,11 @@ class LaumaClass:
 
 
 class LaumaEDebuff: 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Lauma E Res'
-        self.Proportional = False
         self.Type = 'Debuff'
+
+        self.Game = Game
         self.Character = Character
     
     def Apply(self, DebuffedEnemy, Print):
@@ -171,10 +177,11 @@ class LaumaEDebuff:
 
 
 class LaumaQAttackEffect: 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Lauma Q DMGBonus'
-        self.Proportional = True
         self.Type = 'AttackEffect'
+
+        self.Game=Game
         self.Character = Character
 
     def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
@@ -182,7 +189,7 @@ class LaumaQAttackEffect:
         
         if 'LunarBloom' in AttackType:
             
-            EM = self.Character.BuffedStat['EM']
+            EM = self.Character.FinalStat['EM']
 
             if self.Character.SkillLevel['Ult'] == 10:
                 Multiplier = 4.0
@@ -202,10 +209,11 @@ class LaumaQAttackEffect:
     
 
 class LaumaP1AttackEffect: 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name1 = 'Lauma P1 Crit'
-        self.Proportional = False
         self.Type = 'AttackEffect'
+
+        self.Game = Game
         self.Character = Character
 
     def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
@@ -219,17 +227,18 @@ class LaumaP1AttackEffect:
         return AttackingCharacterStat, TargetedEnemyStat
     
 class LaumaP2AttackEffect: 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Lauma P2 E DMGBonus'
-        self.Proportional = True
         self.Type = 'AttackEffect'
+
+        self.Game = Game
         self.Character = Character
 
     def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
         # 개화 반응 NotImplemented
         
         if AttackingCharacter == self.Character:
-            EM = self.Character.BuffedStat['EM']
+            EM = self.Character.FinalStat['EM']
             DMGBonus = min(0.32, 0.0004 * EM)
 
             if SkillType == 'Skill':
@@ -238,10 +247,12 @@ class LaumaP2AttackEffect:
         return AttackingCharacterStat, TargetedEnemyStat
     
 class LaumaP3Buff: 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Lauma P3 LunarBloomDMG'
         self.Proportional = True
         self.Type = 'Buff'
+        
+        self.Game = Game
         self.Character = Character
         
     def Apply(self, BuffedCharacter, Print):
@@ -250,17 +261,18 @@ class LaumaP3Buff:
         EM = self.Character.BuffedStat['EM'] 
         Amount = min(0.14, EM * 0.000175)
 
-        BuffedCharacter.BuffedStat[Stat] += Amount
+        BuffedCharacter.FinalStat[Stat] += Amount
 
         if Print:
-             print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.BuffedStat[Stat]:<5.3f}")
+             print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.FinalStat[Stat]:<5.3f}")
 
     
 class LaumaC6AttackEffect: 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Lauma C6 Elevated'
-        self.Proportional = False
         self.Type = 'AttackEffect'
+        
+        self.Game = Game
         self.Character = Character
 
     def Apply(self, AttackCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):

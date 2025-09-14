@@ -11,9 +11,7 @@ class Game:
         self.BuffList = []
         self.ProportionalBuffList = []
         self.DebuffList = []
-        self.ProportionalDebuffList = []
         self.AttackEffectList = []
-        self.ProportionalAttackEffectList = []
 
         self.PrintAll = False
     
@@ -35,25 +33,25 @@ class Game:
                 self.ProportionalBuffList.append(Effect)
 
         elif Effect.Type == 'Debuff':
-            if not Effect.Proportional:
-                self.DebuffList.append(Effect)
-            else:
-                self.ProportionalDebuffList.append(Effect)
+            self.DebuffList.append(Effect)
 
         elif Effect.Type == 'AttackEffect':
-            if not Effect.Proportional:
-                self.AttackEffectList.append(Effect)
-            else:
-                self.ProportionalAttackEffectList.append(Effect)
+            self.AttackEffectList.append(Effect)
+
         else:
             raise ValueError
     
     def ApplyBuffs(self):
         for Character in self.Characters:
             Character.initBuffedStat()
+
         for Character in self.Characters:
             for Buff in self.BuffList:
                 Buff.Apply(Character, Print=self.PrintAll)
+    
+        for Character in self.Characters:
+            Character.initFinalStat()
+
         for Character in self.Characters:
             for Buff in self.ProportionalBuffList:
                 Buff.Apply(Character, Print=self.PrintAll)
@@ -63,9 +61,6 @@ class Game:
             Enemy.initDebuffedStat()
         for Enemy in self.Enemys:
             for Debuff in self.DebuffList:
-                Debuff.Apply(Enemy, Print=self.PrintAll)
-        for Enemy in self.Enemys:
-            for Debuff in self.ProportionalDebuffList:
                 Debuff.Apply(Enemy, Print=self.PrintAll)
 
     def ApplyAttackEffect(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
@@ -94,20 +89,7 @@ class Game:
                          print(f"Effect | {AttackEffect.Name:<40} | {Stat:<25}: {AttackingCharacterStat[Stat]:<5.3f} -> {AttackingCharacterStatNew[Stat]:<5.3f}")
                 for Stat in TargetedEnemyStat.keys():
                     if TargetedEnemyStat[Stat] != TargetedEnemyStatNew[Stat]:
-                         print(f"Effect |{AttackEffect.Name :<40} | {Stat:<25}: {TargetedEnemyStat[Stat]:<5.3f} -> {TargetedEnemyStatNew[Stat]:<5.3f}")
-
-            AttackingCharacterStat, TargetedEnemyStat = AttackingCharacterStatNew, TargetedEnemyStatNew
-
-        for AttackEffect in self.ProportionalAttackEffectList:
-            AttackingCharacterStatNew, TargetedEnemyStatNew = AttackEffect.Apply(AttackingCharacter, TargetedEnemy, AttackingCharacterStat.copy(), TargetedEnemyStat.copy(), AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-            if self.PrintAll:
-                for Stat in AttackingCharacterStat.keys():
-                    if AttackingCharacterStat[Stat] != AttackingCharacterStatNew[Stat]:
-                        print(f"Effect | {AttackEffect.Name:<40} | {Stat:<25}: {AttackingCharacterStat[Stat]:<5.3f} -> {AttackingCharacterStatNew[Stat]:<5.3f}")
-                for Stat in TargetedEnemyStat.keys():
-                    if TargetedEnemyStat[Stat] != TargetedEnemyStatNew[Stat]:
-                        print(f"Effect | {AttackEffect.Name:<40} | {Stat:<25}: {TargetedEnemyStat[Stat]:<5.3f} -> {TargetedEnemyStatNew[Stat]:<5.3f}")
+                         print(f"Effect | {AttackEffect.Name :<40} | {Stat:<25}: {TargetedEnemyStat[Stat]:<5.3f} -> {TargetedEnemyStatNew[Stat]:<5.3f}")
 
             AttackingCharacterStat, TargetedEnemyStat = AttackingCharacterStatNew, TargetedEnemyStatNew
 

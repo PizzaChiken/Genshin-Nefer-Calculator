@@ -54,12 +54,17 @@ class BaseCharacter:
         self.SkillLevel = SkillLevel
         self.Constellation = Constellation
         
-        self.Game.AddBuff(BasicBuff(self))
-        self.Game.AddDeBuff(BasicDebuff(self))
-        self.Game.AddAttackEffect(BasicAttackEffect(self))
+        self.Game.AddEffect(BasicBuff(Game, self))
+        self.Game.AddEffect(BasicDebuff(Game, self))
+        self.Game.AddEffect(BasicAttackEffect(Game, self))
     
     def initBuffedStat(self):
+        # 비례버프 아닌 스택 적용
         self.BuffedStat = self.BaseStat.copy()
+    
+    def initFinalStat(self):
+        # 비례버프 받은 뒤 최종 스탯
+        self.FinalStat = self.BuffedStat.copy()
     
     def AddWeapon(self, Weapon):
         for Stat in Weapon.StatList.keys():
@@ -93,19 +98,19 @@ class BaseCharacter:
         print(self.BaseStat)
         print('\n')
 
-    def DisplayBuffedStat(self):
-        print(f'{self.Name} Level            : {self.BuffedStat['Level']}')
-        print(f'{self.Name} HP               : {self.BuffedStat['BaseHP'] * (1 + self.BuffedStat['%HP']) + self.BuffedStat['AdditiveHP']}')
-        print(f'{self.Name} ATK              : {self.BuffedStat['BaseATK'] * (1 + self.BuffedStat['%ATK']) + self.BuffedStat['AdditiveATK']}')
-        print(f'{self.Name} DEF              : {self.BuffedStat['BaseDEF'] * (1 + self.BuffedStat['%DEF']) + self.BuffedStat['AdditiveDEF']}')
-        print(f'{self.Name} EM               : {self.BuffedStat['EM']}')
-        print(f'{self.Name} ER               : {self.BuffedStat['ER']}')
-        print(f'{self.Name} CR               : {self.BuffedStat['CR']}')
-        print(f'{self.Name} CD               : {self.BuffedStat['CD']}')
-        print(f'{self.Name} ElementalDMGBonus: {self.BuffedStat[f'{self.Element}DMGBonus']}')
-        print(f'{self.Name} DMGBonus         : {self.BuffedStat[f'DMGBonus']}')
+    def DisplayFinalStat(self):
+        print(f'{self.Name} Level            : {self.FinalStat['Level']}')
+        print(f'{self.Name} HP               : {self.FinalStat['BaseHP'] * (1 + self.FinalStat['%HP']) + self.FinalStat['AdditiveHP']}')
+        print(f'{self.Name} ATK              : {self.FinalStat['BaseATK'] * (1 + self.FinalStat['%ATK']) + self.FinalStat['AdditiveATK']}')
+        print(f'{self.Name} DEF              : {self.FinalStat['BaseDEF'] * (1 + self.FinalStat['%DEF']) + self.FinalStat['AdditiveDEF']}')
+        print(f'{self.Name} EM               : {self.FinalStat['EM']}')
+        print(f'{self.Name} ER               : {self.FinalStat['ER']}')
+        print(f'{self.Name} CR               : {self.FinalStat['CR']}')
+        print(f'{self.Name} CD               : {self.FinalStat['CD']}')
+        print(f'{self.Name} ElementalDMGBonus: {self.FinalStat[f'{self.Element}DMGBonus']}')
+        print(f'{self.Name} DMGBonus         : {self.FinalStat[f'DMGBonus']}')
         print('\n')
-        print(self.BuffedStat)
+        print(self.FinalStat)
         print('\n')
 
         
@@ -123,7 +128,7 @@ class BaseCharacter:
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.BuffedStat.copy()
+        AttackingCharacterStat = self.FinalStat.copy()
         TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
@@ -140,26 +145,32 @@ class BaseCharacter:
 # 범용 버프 : ATK, EM, ...
 
 class BasicBuff: # (범용상황, 범용버프) + (범용상황, 특정버프) + (특정상황, 특정버프) 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Basic버프'
         self.Proportional = False
         self.Type = 'Buff'
 
+        self.Game = Game
         self.Character = Character
 
     def Apply(self, BuffedCharacter, Print):
         Stat = ''
         Amount = 0
-        BuffedCharacter.BuffedStat[Stat] += Amount
+        BuffedCharacter.BuffedStat[Stat] += Amount  
+        # self.Proportional = True 일경우 
+        # BuffedCharacter.FinalStat[Stat] += Amount
         if Print:
-             print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.BuffedStat[Stat]:<5.3f}")
+            print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.BuffedStat[Stat]:<5.3f}")
+            # self.Proportional = True 일경우 
+            #print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.FinalStat[Stat]:<5.3f}")
+
 
 class BasicDebuff: # (범용상황, 범용버프) + (범용상황, 특정버프) + (특정상황, 특정버프) 
-    def __init__(self, Character):
+    def __init__(self, Game, Character):
         self.Name = 'Basic디버프'
-        self.Proportional = False
         self.Type = 'Debuff'
 
+        self.Game = Game
         self.Character = Character
 
     def Apply(self, DebuffedEnemy, Print):
@@ -170,12 +181,12 @@ class BasicDebuff: # (범용상황, 범용버프) + (범용상황, 특정버프)
              print(f"Debuff | {self.Name :<40} | {DebuffedEnemy.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {DebuffedEnemy.DebuffedStat[Stat]:<5.3f}")
 
 
-class BasicAttackEffect: # (특정상황, 범용버프)
-    def __init__(self, Character):
+class BasicAttackEffect: # (특정상황, 범용버프) 
+    def __init__(self, Game, Character):
         self.Name = 'Basic공격효과'
-        self.Proportional = False
         self.Type = 'AttackEffect'
 
+        self.Game = Game
         self.Character = Character
 
     def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):

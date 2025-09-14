@@ -1,10 +1,12 @@
 class NilouP1Buff: 
-    def __init__(self, Character=None, Active=False):
+    def __init__(self, Game, Character, Active):
         self.Name = 'Nilou P1 EM'
         self.Proportional = False
         self.Type = 'Buff'
         
+        self.Game = Game
         self.Character = Character
+
         self.Active = Active
 
     
@@ -17,11 +19,11 @@ class NilouP1Buff:
 
     
 class NilouC2Debuff: 
-    def __init__(self, Character=None, Constellation=2):
+    def __init__(self, Game, Character, Constellation):
         self.Name = 'Nilou C2 Res'
-        self.Proportional = False
         self.Type = 'Debuff'
 
+        self.Game = Game
         self.Character = Character
         self.Constellation = Constellation
     
@@ -39,6 +41,6 @@ class NilouC2Debuff:
                 print(f"Debuff | {self.Name :<40} | {DebuffedEnemy.Name:<20} | {Stat2:<25}: +{Amount:<8.3f} | -> {DebuffedEnemy.DebuffedStat[Stat2]:<5.3f}")
 
 def AddNilouTemp(Game, Constellation, P1EMActive):
-    Game.AddEffect(NilouP1Buff(Active=P1EMActive))
-    Game.AddEffect(NilouC2Debuff(Constellation=Constellation))
+    Game.AddEffect(NilouP1Buff(Game, Character=None, Active=P1EMActive))
+    Game.AddEffect(NilouC2Debuff(Game, Character=None, Constellation=Constellation))
 

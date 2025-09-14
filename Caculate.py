@@ -18,7 +18,7 @@ from Party.비노드버프 import AddNotNordTemp
 
 
 Calculator = Game()
-Calculator.PrintAll = False # 디버깅용, 현재 데미지에 적용중인 버프들, 현재 데미지 계산시 캐릭터 스탯 등등을 print
+Calculator.PrintAll = True # 디버깅용, 현재 데미지에 적용중인 버프들, 현재 데미지 계산시 캐릭터 스탯 등등을 print
 
 Enemy = BaseEnemyClass(Calculator)
 Calculator.AddEnemy(Enemy)
@@ -27,8 +27,8 @@ Calculator.AddEnemy(Enemy)
 NeferConstellation = 6
 NeferRefinements = 5
 Nefer = NeferClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=NeferConstellation, Moonsign=2)
-Nefer.AddWeapon(NeferSignature(Nefer, NeferRefinements, LunarBloomActive=True))
-Nefer.AddArtifactSet(NightOfTheSkysUnveiling(Nefer, PC=4, Moonsign=2))
+Nefer.AddWeapon(NeferSignature(Calculator, Nefer, NeferRefinements, LunarBloomActive=True, SkillActive=True))
+Nefer.AddArtifactSet(NightOfTheSkysUnveiling(Calculator,Nefer, PC=4, Moonsign=2))
 Nefer.AddArtifacts([
     {'AdditiveHP':4780, 'AdditiveATK':311, '%HP':0.466*0, '%ATK':0.466*0, '%DEF':0.583*0, 'EM':187*2, 'ER':0.518*0, 'DendroDMGBonus':0.466*0, 'PhysicalDMGBonus':0.583*0, 'CR':0.311*0, 'CD':0.622*1}, # 주옵
     {'%HP':0.050*0, '%ATK':0.050*0, '%DEF':0.062*0, 'EM':20*2, 'ER':0.055*0, 'CR':0.033*3, 'CD':0.066*2}, # 슬롯1
@@ -42,10 +42,10 @@ Calculator.AddCharacter(Nefer)
 
 # 라우마
 LaumaConstellation = 6
-LaumaRefinements = 1
+LaumaRefinements = 5
 Lauma = LaumaClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=LaumaConstellation, Moonsign=2)
-Lauma.AddWeapon(LaumaSignature(Lauma, LaumaRefinements))
-Lauma.AddArtifactSet(SilkenMoonsSerenade(Lauma, PC=4, Moonsign=2))
+Lauma.AddWeapon(LaumaSignature(Calculator, Lauma, LaumaRefinements, SkillActive=True, LunarBloomActive=True))
+Lauma.AddArtifactSet(SilkenMoonsSerenade(Calculator, Lauma, PC=4, Moonsign=2))
 Lauma.AddArtifacts([
 {'AdditiveHP':4780, 'AdditiveATK':311, '%HP':0.466*0, '%ATK':0.466*0, '%DEF':0.583*0, 'EM':187*3, 'ER':0.518*0, 'DendroDMGBonus':0.466*0, 'PhysicalDMGBonus':0.583*0, 'CR':0.311*0, 'CD':0.622*0}, # 주옵
     {'%HP':0.050*0, '%ATK':0.050*0, '%DEF':0.062*0, 'EM':20*2, 'ER':0.055*3, 'CR':0.033*0, 'CD':0.066*0}, # 슬롯1
@@ -73,7 +73,13 @@ AddNilouSignatureTemp(Calculator, Refinements=NilouRefinements, HP=74444)
 #비노드버프
 AddNotNordTemp(Calculator, 0.36)
 
+Nefer.DisplayBaseStat()
+Lauma.DisplayBaseStat()
+
 Calculator.initCalc()
+
+Nefer.DisplayFinalStat()
+Lauma.DisplayFinalStat()
 
 TotalDMG = 0
 TotalDMG += Nefer.SkillCACombine(Enemy)

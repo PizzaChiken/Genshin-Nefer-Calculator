@@ -1,20 +1,20 @@
 class DeepwoodMemories:
-    def __init__(self, Character, PC):
+    def __init__(self, Game, Character, PC):
         assert PC in [2, 4]
 
         self.StatList = {
             'DendroDMGBonus' : 0.15
         }
         if PC == 4:
-            self.EffectList = [DeepwoodMemoriesDebuff(Character, PC)]
+            self.EffectList = [DeepwoodMemoriesDebuff(Game, Character, PC)]
 
 # 파티버프
 class DeepwoodMemoriesDebuff: 
-    def __init__(self, Character=None, PC=4):
+    def __init__(self, Game, Character, PC):
         self.Name = 'Deepwood Memories Res'
-        self.Proportional = False
         self.Type = 'Debuff'
         
+        self.Game = Game
         self.Character = Character
         self.PC = PC
 
@@ -29,4 +29,4 @@ class DeepwoodMemoriesDebuff:
                 print(f"Debuff | {self.Name :<40} | {DebuffedEnemy.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {DebuffedEnemy.DebuffedStat[Stat]:<5.3f}")
 
 def AddDeepwoodMemorieTemp(Game, PC):
-    Game.AddEffect(DeepwoodMemoriesDebuff(PC=PC))
+    Game.AddEffect(DeepwoodMemoriesDebuff(Game, Character=None, PC=PC))
