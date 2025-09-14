@@ -9,11 +9,12 @@ class NahidaP1Buff:
         self.EM = EM
     
     def Apply(self, BuffedCharacter, Print):
-        Stat = 'EM'
-        Amount = min(250, self.EM * 0.25)
-        BuffedCharacter.FinalStat[Stat] += Amount
-        if Print:
-             print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.FinalStat[Stat]:<5.3f}")
+        if BuffedCharacter == self.Game.Characters[0]:
+            Stat = 'EM'
+            Amount = min(250, self.EM * 0.25)
+            BuffedCharacter.FinalStat[Stat] += Amount
+            if Print:
+                print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.FinalStat[Stat]:<5.3f}")
 
 class NahidaC2Debuff: 
     def __init__(self, Game, Character, Constellation, CatalyzeActive):

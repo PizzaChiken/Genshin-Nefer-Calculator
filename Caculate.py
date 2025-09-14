@@ -24,8 +24,8 @@ Enemy = BaseEnemyClass(Calculator)
 Calculator.AddEnemy(Enemy)
 
 # 네페르
-NeferConstellation = 6
-NeferRefinements = 5
+NeferConstellation = 0
+NeferRefinements = 1
 Nefer = NeferClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=NeferConstellation, Moonsign=2)
 Nefer.AddWeapon(NeferSignature(Calculator, Nefer, NeferRefinements, LunarBloomActive=True, SkillActive=True))
 Nefer.AddArtifactSet(NightOfTheSkysUnveiling(Calculator,Nefer, PC=4, Moonsign=2))
@@ -41,8 +41,8 @@ Calculator.AddCharacter(Nefer)
 #Nefer.DisplayBaseStat()
 
 # 라우마
-LaumaConstellation = 6
-LaumaRefinements = 5
+LaumaConstellation = 0
+LaumaRefinements = 1
 Lauma = LaumaClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=LaumaConstellation, Moonsign=2)
 Lauma.AddWeapon(LaumaSignature(Calculator, Lauma, LaumaRefinements, SkillActive=True, LunarBloomActive=True))
 Lauma.AddArtifactSet(SilkenMoonsSerenade(Calculator, Lauma, PC=4, Moonsign=2))
