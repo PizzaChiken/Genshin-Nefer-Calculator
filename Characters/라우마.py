@@ -1,7 +1,7 @@
 from Game import Game
 
 class LaumaClass:
-    def __init__(self, Game : Game, Level=90, SkillLevel = {'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation = 0, Moonsign=2):
+    def __init__(self, Game : Game, Level, SkillLevel, Constellation, Moonsign):
         self.Name = 'Lauma'
         self.Element = 'Dendro'
         self.Game = Game
@@ -49,7 +49,8 @@ class LaumaClass:
             'LunarBloomBaseDMGBonus' : 0,
             'ElevatedMultiplier' : 1.0 # 승격(버프 계산시 100% 뺴야함)
         }
-        
+        assert Moonsign in [1, 2]
+        self.Moonsign = Moonsign
         self.SkillLevel = SkillLevel
         self.Constellation = Constellation
 
@@ -61,8 +62,8 @@ class LaumaClass:
 
         
         self.Game.AddEffect(LaumaEDebuff(self))
-        self.Game.AddEffect(LaumaQAttackEffect(self, Moonsign))
-        self.Game.AddEffect(LaumaP1AttackEffect(self, Moonsign))
+        self.Game.AddEffect(LaumaQAttackEffect(self))
+        self.Game.AddEffect(LaumaP1AttackEffect(self))
         self.Game.AddEffect(LaumaP2AttackEffect(self))
         self.Game.AddEffect(LaumaP3Buff(self))
         self.Game.AddEffect(LaumaC6AttackEffect(self))
@@ -142,50 +143,24 @@ class LaumaClass:
             print(f'{self.Name} {AttackName} 피해 : {DMG}')
         return DMG
 
-class LaumaP2AttackEffect: 
-    def __init__(self, Character):
-        self.Name = 'Lauma P2 E DMGBonus'
-        self.Proportional = True
-        self.Type = 'AttackEffect'
-
-        self.Character = Character
-
-    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
-        # 개화 반응 구현 X
-        
-        if AttackingCharacter == self.Character:
-            EM = self.Character.BuffedStat['EM']
-            DMGBonus = min(0.32, 0.0004 * EM)
-
-            if SkillType == 'Charge':
-                if 'LunarBloom' in AttackType:
-                    AttackingCharacterStat['ReactionBonus'] += DMGBonus
-                else: 
-                    AttackingCharacterStat['DMGBonus'] += DMGBonus
-
-        return AttackingCharacterStat, TargetedEnemyStat
 
 class LaumaEDebuff: 
-    def __init__(self, Character=None, Constellation=0):
+    def __init__(self, Character):
         self.Name = 'Lauma E Res'
         self.Proportional = False
         self.Type = 'Debuff'
-
         self.Character = Character
-        self.Constellation = Constellation
     
     def Apply(self, DebuffedEnemy, Print):
         Stat1 = 'DendroRes'
         Stat2 = 'HydroRes'
 
-        if self.Character is not None:
-            SkillLevel = self.Character.SkillLevel['Skill']
+        if self.Character.SkillLevel['Skill'] == 10:
+            Amount = -0.25
+        elif self.Character.SkillLevel['Skill'] == 13:
+            Amount = -0.34
         else:
-            SkillLevel = 13 if self.Constellation >= 5 else 10
-
-        assert SkillLevel in [10, 13]
-
-        Amount = -0.25 if SkillLevel == 10 else - 0.34
+            raise NotImplementedError
 
         DebuffedEnemy.DebuffedStat[Stat1] += Amount
         DebuffedEnemy.DebuffedStat[Stat2] += Amount
@@ -196,36 +171,29 @@ class LaumaEDebuff:
 
 
 class LaumaQAttackEffect: 
-    def __init__(self, Character=None, Constellation=0, EM=0, Moonsign=2):
+    def __init__(self, Character):
         self.Name = 'Lauma Q DMGBonus'
         self.Proportional = True
         self.Type = 'AttackEffect'
-
         self.Character = Character
-        self.Constellation = Constellation
-        self.EM = EM
-        assert Moonsign in [1,2]
-        self.Moonsign = Moonsign
 
     def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
-        # 개화 반응 구현 X
+        # 개화 반응 NotImplemented
         
         if 'LunarBloom' in AttackType:
             
-            EM = self.Character.BuffedStat['EM'] if self.Character is not None else self.EM
-            if self.Character is not None:
-                SkillLevel = self.Character.SkillLevel['Skill']
+            EM = self.Character.BuffedStat['EM']
+
+            if self.Character.SkillLevel['Ult'] == 10:
+                Multiplier = 4.0
+            elif self.Character.SkillLevel['Ult'] == 13:
+                Multiplier = 4.723
             else:
-                SkillLevel = 13 if self.Constellation >= 3 else 10
+                raise NotImplementedError
 
-            assert SkillLevel in [13, 10]
-            Multiplier = 4.723 if SkillLevel == 13 else 4.0
-
-            Constellation = self.Character.Constellation if self.Character is not None else self.Constellation
-                
-            if Constellation >= 2:
+            if self.Character.Constellation >= 2:
                 Multiplier += 4.0
-                if self.Moonsign == 2:
+                if self.Character.Moonsign == 2:
                     AttackingCharacterStat['ReactionBonus'] += 0.4
                 
             AttackingCharacterStat['AdditiveBaseDMGBonus'] += EM * Multiplier
@@ -234,40 +202,52 @@ class LaumaQAttackEffect:
     
 
 class LaumaP1AttackEffect: 
-    def __init__(self, Character=None, Moonsign=2):
+    def __init__(self, Character):
         self.Name1 = 'Lauma P1 Crit'
         self.Proportional = False
         self.Type = 'AttackEffect'
-
         self.Character = Character
-        assert Moonsign in [1,2]
-        self.Moonsign = Moonsign
 
     def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
-        if self.Moonsign == 1:
-            pass # 개화반응 구현 X
-
-        if self.Moonsign == 2:
+        if self.Character.Moonsign == 1:
+            raise NotImplementedError
+        if self.Character.Moonsign == 2:
             if 'LunarBloom' in AttackType:
                 AttackingCharacterStat['CR'] + 0.1
                 AttackingCharacterStat['CD'] + 0.2
         
         return AttackingCharacterStat, TargetedEnemyStat
     
+class LaumaP2AttackEffect: 
+    def __init__(self, Character):
+        self.Name = 'Lauma P2 E DMGBonus'
+        self.Proportional = True
+        self.Type = 'AttackEffect'
+        self.Character = Character
+
+    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
+        # 개화 반응 NotImplemented
+        
+        if AttackingCharacter == self.Character:
+            EM = self.Character.BuffedStat['EM']
+            DMGBonus = min(0.32, 0.0004 * EM)
+
+            if SkillType == 'Skill':
+                AttackingCharacterStat['DMGBonus'] += DMGBonus
+
+        return AttackingCharacterStat, TargetedEnemyStat
     
 class LaumaP3Buff: 
-    def __init__(self, Character=None, EM=None):
-        self.Name = 'Lauma P2 LunarBloomDMG'
+    def __init__(self, Character):
+        self.Name = 'Lauma P3 LunarBloomDMG'
         self.Proportional = True
         self.Type = 'Buff'
-
         self.Character = Character
-        self.EM = EM
         
     def Apply(self, BuffedCharacter, Print):
         Stat = 'LunarBloomBaseDMGBonus'
 
-        EM = self.Character.BuffedStat['EM'] if self.Character is not None else self.EM
+        EM = self.Character.BuffedStat['EM'] 
         Amount = min(0.14, EM * 0.000175)
 
         BuffedCharacter.BuffedStat[Stat] += Amount
@@ -277,25 +257,15 @@ class LaumaP3Buff:
 
     
 class LaumaC6AttackEffect: 
-    def __init__(self, Character=None, Constellation=6):
+    def __init__(self, Character):
         self.Name = 'Lauma C6 Elevated'
         self.Proportional = False
         self.Type = 'AttackEffect'
-
         self.Character = Character
-        self.Constellation = Constellation
 
     def Apply(self, AttackCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
         if 'LunarBloom' in AttackType:
-            Constellation = self.Character.Constellation if self.Character is not None else self.Constellation
-            if Constellation >= 6:
+            if self.Character.Constellation >= 6:
                 AttackingCharacterStat['ElevatedMultiplier'] += 0.25
 
         return AttackingCharacterStat, TargetedEnemyStat
-
-def AddLaumaTemp(Game, Constellation, EM, Moonsign):
-    Game.AddEffect(LaumaEDebuff(Constellation=Constellation))
-    Game.AddEffect(LaumaQAttackEffect(Constellation=Constellation, EM=EM, Moonsign=Moonsign))
-    Game.AddEffect(LaumaP1AttackEffect(Moonsign=Moonsign))
-    Game.AddEffect(LaumaP3Buff(EM=EM))
-    Game.AddEffect(LaumaC6AttackEffect(Constellation=Constellation))

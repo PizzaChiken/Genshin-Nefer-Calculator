@@ -93,6 +93,21 @@ class BaseCharacter:
         print(self.BaseStat)
         print('\n')
 
+    def DisplayBuffedStat(self):
+        print(f'{self.Name} Level            : {self.BuffedStat['Level']}')
+        print(f'{self.Name} HP               : {self.BuffedStat['BaseHP'] * (1 + self.BuffedStat['%HP']) + self.BuffedStat['AdditiveHP']}')
+        print(f'{self.Name} ATK              : {self.BuffedStat['BaseATK'] * (1 + self.BuffedStat['%ATK']) + self.BuffedStat['AdditiveATK']}')
+        print(f'{self.Name} DEF              : {self.BuffedStat['BaseDEF'] * (1 + self.BuffedStat['%DEF']) + self.BuffedStat['AdditiveDEF']}')
+        print(f'{self.Name} EM               : {self.BuffedStat['EM']}')
+        print(f'{self.Name} ER               : {self.BuffedStat['ER']}')
+        print(f'{self.Name} CR               : {self.BuffedStat['CR']}')
+        print(f'{self.Name} CD               : {self.BuffedStat['CD']}')
+        print(f'{self.Name} ElementalDMGBonus: {self.BuffedStat[f'{self.Element}DMGBonus']}')
+        print(f'{self.Name} DMGBonus         : {self.BuffedStat[f'DMGBonus']}')
+        print('\n')
+        print(self.BuffedStat)
+        print('\n')
+
         
     def Damage(self, TargetedEnemy, Reaction=None, Print=True):
         AttackName = '일반공격 1단'

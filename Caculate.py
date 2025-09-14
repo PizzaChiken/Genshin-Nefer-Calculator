@@ -24,10 +24,10 @@ Enemy = BaseEnemyClass(Calculator)
 Calculator.AddEnemy(Enemy)
 
 # 네페르
-NeferConstellation = 0
-NeferRefinements = 1
-Nefer = NeferClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=NeferConstellation)
-Nefer.AddWeapon(NeferSignature(Nefer, NeferRefinements))
+NeferConstellation = 6
+NeferRefinements = 5
+Nefer = NeferClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=NeferConstellation, Moonsign=2)
+Nefer.AddWeapon(NeferSignature(Nefer, NeferRefinements, LunarBloomActive=True))
 Nefer.AddArtifactSet(NightOfTheSkysUnveiling(Nefer, PC=4, Moonsign=2))
 Nefer.AddArtifacts([
     {'AdditiveHP':4780, 'AdditiveATK':311, '%HP':0.466*0, '%ATK':0.466*0, '%DEF':0.583*0, 'EM':187*2, 'ER':0.518*0, 'DendroDMGBonus':0.466*0, 'PhysicalDMGBonus':0.583*0, 'CR':0.311*0, 'CD':0.622*1}, # 주옵
@@ -41,7 +41,7 @@ Calculator.AddCharacter(Nefer)
 #Nefer.DisplayBaseStat()
 
 # 라우마
-LaumaConstellation = 0
+LaumaConstellation = 6
 LaumaRefinements = 1
 Lauma = LaumaClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=LaumaConstellation, Moonsign=2)
 Lauma.AddWeapon(LaumaSignature(Lauma, LaumaRefinements))
