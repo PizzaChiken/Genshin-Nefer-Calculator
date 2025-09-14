@@ -9,7 +9,6 @@ from Weapons.네페르전무 import NeferSignature
 from Weapons.나히다전무 import AddNahidaSignatureTemp, NahidaSignature
 from Weapons.라우마전무 import LaumaSignature
 from Weapons.닐루전무 import AddNilouSignatureTemp
-from Weapons.검은골수의등불 import BlackmarrowLantern
 
 from Artifacts.하늘경계가드러난밤 import NightOfTheSkysUnveiling
 from Artifacts.달을엮는밤노래 import SilkenMoonsSerenade
@@ -19,17 +18,16 @@ from Party.비노드버프 import AddNotNordTemp
 
 
 Calculator = Game()
-Calculator.PrintAll = True # 디버깅용, 현재 데미지에 적용중인 버프들, 현재 데미지 계산시 캐릭터 스탯 등등을 print
+Calculator.PrintAll = False # 디버깅용, 현재 데미지에 적용중인 버프들, 현재 데미지 계산시 캐릭터 스탯 등등을 print
 
 Enemy = BaseEnemyClass(Calculator)
 Calculator.AddEnemy(Enemy)
 
 # 네페르
 NeferConstellation = 0
-NeferRefinements = 1
+NeferRefinements = 0
 Nefer = NeferClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=NeferConstellation)
 Nefer.AddWeapon(NeferSignature(Nefer, NeferRefinements))
-#Nefer.AddWeapon(BlackmarrowLantern(Nefer, Refinements=5, Moonsign=2))
 Nefer.AddArtifactSet(NightOfTheSkysUnveiling(Nefer, PC=4, Moonsign=2))
 Nefer.AddArtifacts([
     {'AdditiveHP':4780, 'AdditiveATK':311, '%HP':0.466*0, '%ATK':0.466*0, '%DEF':0.583*0, 'EM':187*2, 'ER':0.518*0, 'DendroDMGBonus':0.466*0, 'PhysicalDMGBonus':0.583*0, 'CR':0.311*0, 'CD':0.622*1}, # 주옵
@@ -43,11 +41,10 @@ Calculator.AddCharacter(Nefer)
 #Nefer.DisplayBaseStat()
 
 # 라우마
-LaumaConstellation = 0
-LaumaRefinements = 1
+LaumaConstellation = 6
+LaumaRefinements = 5
 Lauma = LaumaClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=LaumaConstellation, Moonsign=2)
 Lauma.AddWeapon(LaumaSignature(Lauma, LaumaRefinements))
-#Lauma.AddWeapon(NahidaSignature(Lauma, LaumaRefinements))
 Lauma.AddArtifactSet(SilkenMoonsSerenade(Lauma, PC=4, Moonsign=2))
 Lauma.AddArtifacts([
 {'AdditiveHP':4780, 'AdditiveATK':311, '%HP':0.466*0, '%ATK':0.466*0, '%DEF':0.583*0, 'EM':187*3, 'ER':0.518*0, 'DendroDMGBonus':0.466*0, 'PhysicalDMGBonus':0.583*0, 'CR':0.311*0, 'CD':0.622*0}, # 주옵
@@ -78,15 +75,13 @@ AddNotNordTemp(Calculator, 0.36)
 
 Calculator.initCalc()
 
-Nefer.SkillCAShade1(Enemy)
-
 TotalDMG = 0
-#TotalDMG += Nefer.SkillCACombine(Enemy)
-#TotalDMG += Nefer.SkillCACombine(Enemy, Print=False)
-#TotalDMG += Nefer.SkillCACombine(Enemy, Print=False)
-#TotalDMG += Nefer.SkillCACombine(Enemy, Print=False)
-#TotalDMG += Nefer.SkillCACombine(Enemy, Print=False)
-#TotalDMG += Nefer.SkillCACombine(Enemy, Print=False)
+TotalDMG += Nefer.SkillCACombine(Enemy)
+TotalDMG += Nefer.SkillCACombine(Enemy, Print=False)
+TotalDMG += Nefer.SkillCACombine(Enemy, Print=False)
+TotalDMG += Nefer.SkillCACombine(Enemy, Print=False)
+TotalDMG += Nefer.SkillCACombine(Enemy, Print=False)
+TotalDMG += Nefer.SkillCACombine(Enemy, Print=False)
 
 
 print('\n')

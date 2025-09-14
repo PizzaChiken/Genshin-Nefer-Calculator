@@ -94,7 +94,7 @@ class Game:
                          print(f"Effect | {AttackEffect.Name:<40} | {Stat:<25}: {AttackingCharacterStat[Stat]:<5.3f} -> {AttackingCharacterStatNew[Stat]:<5.3f}")
                 for Stat in TargetedEnemyStat.keys():
                     if TargetedEnemyStat[Stat] != TargetedEnemyStatNew[Stat]:
-                         print(f"Effect |{AttackEffect.Name :<40} | {Stat:<25}: {AttackingCharacterStat[Stat]:<5.3f} -> {AttackingCharacterStatNew[Stat]:<5.3f}")
+                         print(f"Effect |{AttackEffect.Name :<40} | {Stat:<25}: {TargetedEnemyStat[Stat]:<5.3f} -> {TargetedEnemyStatNew[Stat]:<5.3f}")
 
             AttackingCharacterStat, TargetedEnemyStat = AttackingCharacterStatNew, TargetedEnemyStatNew
 
@@ -107,7 +107,7 @@ class Game:
                         print(f"Effect | {AttackEffect.Name:<40} | {Stat:<25}: {AttackingCharacterStat[Stat]:<5.3f} -> {AttackingCharacterStatNew[Stat]:<5.3f}")
                 for Stat in TargetedEnemyStat.keys():
                     if TargetedEnemyStat[Stat] != TargetedEnemyStatNew[Stat]:
-                        print(f"Effect | {AttackEffect.Name:<40} | {Stat:<25}: {AttackingCharacterStat[Stat]:<5.3f} -> {AttackingCharacterStatNew[Stat]:<5.3f}")
+                        print(f"Effect | {AttackEffect.Name:<40} | {Stat:<25}: {TargetedEnemyStat[Stat]:<5.3f} -> {TargetedEnemyStatNew[Stat]:<5.3f}")
 
             AttackingCharacterStat, TargetedEnemyStat = AttackingCharacterStatNew, TargetedEnemyStatNew
 
