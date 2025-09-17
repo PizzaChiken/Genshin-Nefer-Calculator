@@ -1,7 +1,18 @@
 
 from Game import Game
+from .BaseCharacter import BaseCharacter
 
-class NeferClass:
+# 버프 체크리스트
+# P1 네페르 원마 (Buff)                            (complete) 
+# P1 네페르 환희 곱연산 (AttackEffect)              (complete) 
+# P2 네페르 공증 (Buff)                             (complete) 
+# P3 파티 달개화 피증 (AttackEffect)                 (complete)     
+# C1 계수증가                                        (complete)           
+# C2 네페르 원마, 계수증가 (Buff, AttackEffect)      (complete) 
+# C4 네페르 내성깍 (AttackEffect)                    (complete) 
+# C6 환희 2타 전환 + 추가타 + 승격(AttackEffect)      (complete) 
+
+class NeferClass(BaseCharacter):
     def __init__(self, Game : Game, Level, SkillLevel, Constellation, Moonsign):
         self.Name = 'Nefer'
         self.Element = 'Dendro'
@@ -48,7 +59,9 @@ class NeferClass:
             'DEFIgnored' : 0,
             'LunarChargedBaseDMGBonus' : 0,
             'LunarBloomBaseDMGBonus' : 0,
-            'ElevatedMultiplier' : 1.0 # 승격(버프 계산시 100% 뺴야함)
+            'ElevatedMultiplier' : 0, # 승격(버프 계산시 100% 뺴야함)
+            'TransformativeCR' : 0,
+            'TransformativeCD' : 0
         }
         assert Moonsign in [1, 2]
         self.Moonsign = Moonsign
@@ -61,74 +74,19 @@ class NeferClass:
         if self.Constellation >= 5:
             self.SkillLevel['Ult'] += 3
 
-
         self.Game.AddEffect(NeferUltAttackEffect(Game, self))
         self.Game.AddEffect(NeferP1EMBuff(Game, self))
         self.Game.AddEffect(NeferP1MultiplierAttackEffect(Game, self))
         self.Game.AddEffect(NeferP2Buff(Game, self))
-        self.Game.AddEffect(NeferP3Buff(Game, self))
+        self.Game.AddEffect(NeferP3AttackEffect(Game, self))
         self.Game.AddEffect(NeferC4AttackEffect(Game, self))
         self.Game.AddEffect(NeferC6AttackEffect(Game, self))
+
+        self.TotalDamageDealt = 0
         
-    
-    def initBuffedStat(self):
-        # 비례버프 아닌 스택 적용
-        self.BuffedStat = self.BaseStat.copy()
-    
-    def initFinalStat(self):
-        # 비례버프 받은 뒤 최종 스탯
-        self.FinalStat = self.BuffedStat.copy()
-    
-    def AddWeapon(self, Weapon):
-        for Stat in Weapon.StatList.keys():
-            self.BaseStat[Stat] += Weapon.StatList[Stat]
-        for Effect in Weapon.EffectList:
-            self.Game.AddEffect(Effect)
-    
-    def AddArtifactSet(self, ArtifactSet):
-        for Stat in ArtifactSet.StatList.keys():
-            self.BaseStat[Stat] +=  ArtifactSet.StatList[Stat]
-        for Effect in ArtifactSet.EffectList:
-            self.Game.AddEffect(Effect)
-    
-    def AddArtifacts(self, Artifacts):
-        for Artifact in Artifacts:
-            for Stat in Artifact.keys():
-                self.BaseStat[Stat] += Artifact[Stat]
-
-    def DisplayBaseStat(self):
-        print(f'{self.Name} Level            : {self.BaseStat['Level']}')
-        print(f'{self.Name} HP               : {self.BaseStat['BaseHP'] * (1 + self.BaseStat['%HP']) + self.BaseStat['AdditiveHP']}')
-        print(f'{self.Name} ATK              : {self.BaseStat['BaseATK'] * (1 + self.BaseStat['%ATK']) + self.BaseStat['AdditiveATK']}')
-        print(f'{self.Name} DEF              : {self.BaseStat['BaseDEF'] * (1 + self.BaseStat['%DEF']) + self.BaseStat['AdditiveDEF']}')
-        print(f'{self.Name} EM               : {self.BaseStat['EM']}')
-        print(f'{self.Name} ER               : {self.BaseStat['ER']}')
-        print(f'{self.Name} CR               : {self.BaseStat['CR']}')
-        print(f'{self.Name} CD               : {self.BaseStat['CD']}')
-        print(f'{self.Name} ElementalDMGBonus: {self.BaseStat[f'{self.Element}DMGBonus']}')
-        print(f'{self.Name} DMGBonus         : {self.BaseStat[f'DMGBonus']}')
-        print('\n')
-        print(self.BaseStat)
-        print('\n')
-
-    def DisplayFinalStat(self):
-        print(f'{self.Name} Level            : {self.FinalStat['Level']}')
-        print(f'{self.Name} HP               : {self.FinalStat['BaseHP'] * (1 + self.FinalStat['%HP']) + self.FinalStat['AdditiveHP']}')
-        print(f'{self.Name} ATK              : {self.FinalStat['BaseATK'] * (1 + self.FinalStat['%ATK']) + self.FinalStat['AdditiveATK']}')
-        print(f'{self.Name} DEF              : {self.FinalStat['BaseDEF'] * (1 + self.FinalStat['%DEF']) + self.FinalStat['AdditiveDEF']}')
-        print(f'{self.Name} EM               : {self.FinalStat['EM']}')
-        print(f'{self.Name} ER               : {self.FinalStat['ER']}')
-        print(f'{self.Name} CR               : {self.FinalStat['CR']}')
-        print(f'{self.Name} CD               : {self.FinalStat['CD']}')
-        print(f'{self.Name} ElementalDMGBonus: {self.FinalStat[f'{self.Element}DMGBonus']}')
-        print(f'{self.Name} DMGBonus         : {self.FinalStat[f'DMGBonus']}')
-        print('\n')
-        print(self.FinalStat)
-        print('\n')
-
         
     def NA1(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '일반공격 1단'
+        AttackName = f'{self.Name} 일반공격 1단'
         AttackType = 'Basic'
         AttackElement = 'Dendro'
         SkillType = 'Normal'
@@ -146,14 +104,16 @@ class NeferClass:
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
 
-        DMG = self.Game.ApplyDMG(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+
+        self.TotalDamageDealt += DMG
 
         if Print:
-            print(f'{self.Name} {AttackName} 피해 : {DMG}')
+            print(f'{AttackName} 피해 : {DMG}')
         return DMG
     
-    def SkillInit(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '원소스킬 시전'
+    def SkillStart(self, TargetedEnemy, Reaction=None, Print=True):
+        AttackName = f'{self.Name} 원소스킬 시전'
         AttackType = 'Basic'
         AttackElement = 'Dendro'
         SkillType = 'Normal'
@@ -162,7 +122,7 @@ class NeferClass:
         if self.SkillLevel['Skill'] == 10:
             Multiplier = {'HP' : 0., 'ATK' : 1.375, 'DEF' : 0., 'EM' : 2.75}
         elif self.SkillLevel['Skill'] == 13:
-            Multiplier = {'HP' : 0., 'ATK' : 0., 'DEF' : 0., 'EM' : 0}
+            Multiplier = {'HP' : 0., 'ATK' : 1.623, 'DEF' : 0., 'EM' : 3.246}
         else:
             raise NotImplementedError
 
@@ -171,14 +131,16 @@ class NeferClass:
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
 
-        DMG = self.Game.ApplyDMG(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+
+        self.TotalDamageDealt += DMG
 
         if Print:
-            print(f'{self.Name} {AttackName} 피해 : {DMG}')
+            print(f'{AttackName} 피해 : {DMG}')
         return DMG
     
     def SkillCANefer1(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '강공격 환희 (네페르) 1단'
+        AttackName = f'{self.Name} 강공격 환희 (네페르) 1단'
         AttackType = 'Basic'
         AttackElement = 'Dendro'
         SkillType = 'Charge'
@@ -196,14 +158,16 @@ class NeferClass:
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
 
-        DMG = self.Game.ApplyDMG(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+
+        self.TotalDamageDealt += DMG
 
         if Print:
-            print(f'{self.Name} {AttackName} 피해 : {DMG}')
+            print(f'{AttackName} 피해 : {DMG}')
         return DMG
 
     def SkillCANefer2(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '강공격 환희 (네페르) 2단'
+        AttackName = f'{self.Name} 강공격 환희 (네페르) 2단'
         AttackType = 'Basic'
         AttackElement = 'Dendro'
         SkillType = 'Charge'
@@ -221,14 +185,16 @@ class NeferClass:
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
 
-        DMG = self.Game.ApplyDMG(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+
+        self.TotalDamageDealt += DMG
 
         if Print:
-            print(f'{self.Name} {AttackName} 피해 : {DMG}')
+            print(f'{AttackName} 피해 : {DMG}')
         return DMG
     
     def SkillCANefer2C6(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '강공격 환희 (네페르) 2단 6돌'
+        AttackName = f'{self.Name} 강공격 환희 (네페르) 2단 6돌'
         AttackType = 'DirectLunarBloom'
         AttackElement = 'Dendro'
         SkillType = None
@@ -244,14 +210,16 @@ class NeferClass:
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
 
-        DMG = self.Game.ApplyDMG(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+
+        self.TotalDamageDealt += DMG
 
         if Print:
-            print(f'{self.Name} {AttackName} 피해 : {DMG}')
+            print(f'{AttackName} 피해 : {DMG}')
         return DMG
     
     def SkillCAShade1(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '강공격 환희 (환영) 1단'
+        AttackName = f'{self.Name} 강공격 환희 (환영) 1단'
         AttackType = 'DirectLunarBloom'
         AttackElement = 'Dendro'
         SkillType = None
@@ -272,14 +240,16 @@ class NeferClass:
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
 
-        DMG = self.Game.ApplyDMG(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+
+        self.TotalDamageDealt += DMG
 
         if Print:
-            print(f'{self.Name} {AttackName} 피해 : {DMG}')
+            print(f'{AttackName} 피해 : {DMG}')
         return DMG
     
     def SkillCAShade2(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '강공격 환희 (환영) 2단'
+        AttackName = f'{self.Name} 강공격 환희 (환영) 2단'
         AttackType = 'DirectLunarBloom'
         AttackElement = 'Dendro'
         SkillType = None
@@ -300,14 +270,16 @@ class NeferClass:
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
 
-        DMG = self.Game.ApplyDMG(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+
+        self.TotalDamageDealt += DMG
 
         if Print:
-            print(f'{self.Name} {AttackName} 피해 : {DMG}')
+            print(f'{AttackName} 피해 : {DMG}')
         return DMG
     
     def SkillCAShade3(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '강공격 환희 (환영) 3단'
+        AttackName = f'{self.Name} 강공격 환희 (환영) 3단'
         AttackType = 'DirectLunarBloom'
         AttackElement = 'Dendro'
         SkillType = None
@@ -328,14 +300,16 @@ class NeferClass:
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
 
-        DMG = self.Game.ApplyDMG(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+
+        self.TotalDamageDealt += DMG
 
         if Print:
-            print(f'{self.Name} {AttackName} 피해 : {DMG}')
+            print(f'{AttackName} 피해 : {DMG}')
         return DMG
     
     def SkillCAFinalC6(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '강공격 환희 6돌 추가'
+        AttackName = f'{self.Name} 강공격 환희 6돌 추가'
         AttackType = 'DirectLunarBloom'
         AttackElement = 'Dendro'
         SkillType = None
@@ -351,14 +325,16 @@ class NeferClass:
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
 
-        DMG = self.Game.ApplyDMG(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+
+        self.TotalDamageDealt += DMG
 
         if Print:
-            print(f'{self.Name} {AttackName} 피해 : {DMG}')
+            print(f'{AttackName} 피해 : {DMG}')
         return DMG
     
     def Ult1(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '원소폭발 1단'
+        AttackName = f'{self.Name} 원소폭발 1단'
         AttackType = 'Basic'
         AttackElement = 'Dendro'
         SkillType = 'Ult'
@@ -376,14 +352,16 @@ class NeferClass:
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
 
-        DMG = self.Game.ApplyDMG(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+
+        self.TotalDamageDealt += DMG
 
         if Print:
-            print(f'{self.Name} {AttackName} 피해 : {DMG}')
+            print(f'{AttackName} 피해 : {DMG}')
         return DMG
     
     def Ult2(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = '원소폭발 2단'
+        AttackName = f'{self.Name} 원소폭발 2단'
         AttackType = 'Basic'
         AttackElement = 'Dendro'
         SkillType = 'Ult'
@@ -401,13 +379,16 @@ class NeferClass:
 
         AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
 
-        DMG = self.Game.ApplyDMG(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+
+        self.TotalDamageDealt += DMG
 
         if Print:
-            print(f'{self.Name} {AttackName} 피해 : {DMG}')
+            print(f'{AttackName} 피해 : {DMG}')
         return DMG
     
-    def SkillCACombine(self, TargetedEnemy, Reaction=None, Print=True):
+    def SkillCACombine(self, TargetedEnemy, Print=True):
+        Reaction = None
         BasicDMG = 0
         LunarBloomDmg = 0
 
@@ -431,16 +412,30 @@ class NeferClass:
             print(f'{self.Name} 환상극 피해 -> 일반 : {BasicDMG}, 달개화 : {LunarBloomDmg}, 총합 : {FinalDMG}')
         return FinalDMG
     
-    def UltCombine(self, TargetedEnemy, Reaction=None, Print=True):
+    def UltCombine(self, TargetedEnemy, Print=True):
         DMG = 0 
-        DMG += self.Ult1(TargetedEnemy, Reaction, Print=False)
-        DMG += self.Ult2(TargetedEnemy, Reaction, Print=False)
+        DMG += self.Ult1(TargetedEnemy, None, Print=False)
+        DMG += self.Ult2(TargetedEnemy, None, Print=False)
 
         if Print:
             print(f'{self.Name} 원소폭발 총합 피해 : {DMG}')
         return DMG
+    
+    def NeferRoatation(self, TargetedEnemy, Print=True):
+        DMG = 0
+        DMG += self.SkillStart(TargetedEnemy, None, Print)
+        DMG += self.SkillCACombine(TargetedEnemy, Print)
+        DMG += self.SkillCACombine(TargetedEnemy, Print)
+        DMG += self.SkillCACombine(TargetedEnemy, Print)
 
-# 개인버프
+        DMG += self.SkillStart(TargetedEnemy, None, Print)
+        DMG += self.SkillCACombine(TargetedEnemy, Print)
+        DMG += self.SkillCACombine(TargetedEnemy, Print)
+        DMG += self.SkillCACombine(TargetedEnemy, Print)
+
+        return DMG
+        
+    
 
 class NeferUltAttackEffect: 
     def __init__(self, Game, Character):
@@ -528,23 +523,22 @@ class NeferP2Buff:
             if Print:
                 print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.FinalStat[Stat]:<5.3f}")
 
-class NeferP3Buff: 
+class NeferP3AttackEffect: 
     def __init__(self, Game, Character):
         self.Name = 'Nefer P3 LunarBloomDMG'
-        self.Proportional = True
-        self.Type = 'Buff'
+        self.Type = 'AttackEffect'
 
         self.Game = Game
         self.Character = Character
 
-    def Apply(self, BuffedCharacter, Print):
-        Stat = 'LunarBloomBaseDMGBonus'
-        EM = self.Character.BuffedStat['EM'] 
-        Amount = min(0.14, EM * 0.000175)
-
-        BuffedCharacter.FinalStat[Stat] += Amount
-        if Print:
-             print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.FinalStat[Stat]:<5.3f}")
+    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
+        if AttackType == 'DirectLunarBloom':
+            EM = self.Character.FinalStat['EM'] 
+            Amount = min(0.14, EM * 0.000175)
+            
+            AttackingCharacterStat['LunarBloomBaseDMGBonus'] += Amount
+        
+        return AttackingCharacterStat, TargetedEnemyStat
 
     
 class NeferC4AttackEffect: 
@@ -561,7 +555,6 @@ class NeferC4AttackEffect:
                 TargetedEnemyStat['DendroRes'] -= 0.2
             
         return AttackingCharacterStat, TargetedEnemyStat
-    
 
 
 class NeferC6AttackEffect: 

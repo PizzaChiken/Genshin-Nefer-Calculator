@@ -1,4 +1,9 @@
-class LaumaSignature:
+# 버프 체크리스트
+# 캐릭터 원미 (Buff)                         (complete) 
+# 파티 개화 피증, 달개화 피증 (AttackEffect)   (complete) 
+
+
+class NightweaversLookingGlass:
     def __init__(self, Game, Character, Refinements, SkillActive, LunarBloomActive):
         assert Refinements in [1, 2, 3, 4, 5]
         
@@ -8,14 +13,14 @@ class LaumaSignature:
         }
 
         self.EffectList = [
-            LaumaSignatureBuff(Game, Character, Refinements, SkillActive, LunarBloomActive),
-            LaumaSignatureAttackEffect(Game, Character, Refinements, SkillActive, LunarBloomActive)
+            NightweaversLookingGlassBuff(Game, Character, Refinements, SkillActive, LunarBloomActive),
+            NightweaversLookingGlassAttackEffect(Game, Character, Refinements, SkillActive, LunarBloomActive)
             ]
             
 
-class LaumaSignatureBuff: 
+class NightweaversLookingGlassBuff: 
     def __init__(self, Game, Character, Refinements, SkillActive, LunarBloomActive):
-        self.Name = 'LaumaSignatureEM'
+        self.Name = 'NightweaversLookingGlassEM'
         self.Proportional = False
         self.Type = 'Buff'
 
@@ -38,25 +43,32 @@ class LaumaSignatureBuff:
             if Print:
                 print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.BuffedStat[Stat]:<5.3f}")
             
-class LaumaSignatureAttackEffect: 
+class NightweaversLookingGlassAttackEffect: 
     def __init__(self, Game, Character, Refinements, SkillActive, LunarBloomActive):
-        self.Name = 'Lauma Signature LunarBloomDMGBonus'
+        self.Name = 'NightweaversLookingGlass LunarBloomDMGBonus'
         self.Type = 'AttackEffect'
 
         self.Game = Game
         self.Character = Character
 
         assert Refinements in [1, 2, 3, 4, 5]
-        self.ReactionBonus = [0.4, 0.5, 0.6, 0.7, 0.8][Refinements-1]
+        self.ReactionBonus1 = [1.2, 1.5, 1.8, 2.1, 2.4][Refinements-1]
+        self.ReactionBonus2 = [0.8, 1.0, 1.2, 1.4, 1.6][Refinements-1]
+        self.ReactionBonus3 = [0.4, 0.5, 0.6, 0.7, 0.8][Refinements-1]
         self.BothActive = SkillActive and LunarBloomActive
 
     def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
-        # 개화관련 NotImplemented
-        if 'LunarBloom' in AttackType:
+        if AttackType == 'Bloom':
             if self.BothActive:
-                AttackingCharacterStat['ReactionBonus'] += self.ReactionBonus
+                AttackingCharacterStat['ReactionBonus'] += self.ReactionBonus1
+        
+        elif AttackType in ['Burgeon', 'Hyperbloom']:
+            if self.BothActive:
+                AttackingCharacterStat['ReactionBonus'] += self.ReactionBonus2
+        
+        elif AttackType == 'DirectLunarBloom':
+            if self.BothActive:
+                AttackingCharacterStat['ReactionBonus'] += self.ReactionBonus3
         
         return AttackingCharacterStat, TargetedEnemyStat
     
-def AddLaumaSignatureTemp(Game, Refinements, SkillActive, LunarBloomActive):
-    Game.AddEffect(LaumaSignatureAttackEffect(Game, Character=None, Refinements=Refinements, SkillActive=SkillActive, LunarBloomActive=LunarBloomActive))

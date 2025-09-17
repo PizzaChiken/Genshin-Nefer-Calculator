@@ -1,3 +1,6 @@
+# 버프 체크리스트
+# 적 내성깎 (Buff)  (complete) 
+
 class DeepwoodMemories:
     def __init__(self, Game, Character, PC):
         assert PC in [2, 4]
@@ -27,6 +30,3 @@ class DeepwoodMemoriesDebuff:
 
             if Print:
                 print(f"Debuff | {self.Name :<40} | {DebuffedEnemy.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {DebuffedEnemy.DebuffedStat[Stat]:<5.3f}")
-
-def AddDeepwoodMemorieTemp(Game, PC):
-    Game.AddEffect(DeepwoodMemoriesDebuff(Game, Character=None, PC=PC))

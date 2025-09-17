@@ -1,4 +1,9 @@
 from Game import Game
+
+#체크리스트
+# 파티원마 (Buff)  (complete) 
+# 파티달반응피증(AttackEffect)  (complete) 
+
 class SilkenMoonsSerenade:
     def __init__(self, Game, Character, PC, Moonsign = 2):
         assert PC in [2, 4]

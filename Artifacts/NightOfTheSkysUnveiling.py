@@ -1,3 +1,6 @@
+# 체크리스트
+# 캐릭터 치확(Buff)  (complete) 
+# 파티 달반응 피해 (AttackEffect)  (complete) 
 class NightOfTheSkysUnveiling:
     def __init__(self, Game, Character, PC, Moonsign):
         assert PC in [2, 4]

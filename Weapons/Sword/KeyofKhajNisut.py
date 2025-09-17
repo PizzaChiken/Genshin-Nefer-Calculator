@@ -1,22 +1,25 @@
-class NilouSignature:
+#체크리스트 
+# 캐릭터 원마 (Buff) (Complete)
+# 파티 원마 (Buff) (Complete)
+
+class KeyofKhajNisut:
     def __init__(self, Game, Character, Refinements):
         assert Refinements in [1, 2, 3, 4, 5]
         self.StatList = {
             'BaseATK' : 542,
             '%HP' : 0.662 + [0.2, 0.25, 0.3, 0.35, 0.4][Refinements-1],
         }
-        self.EffectList = [NilouSignatureBuff(Game, Character, Refinements)]
+        self.EffectList = [KeyofKhajNisutBuff(Game, Character, Refinements)]
 
 # 파티버프
-class NilouSignatureBuff: 
-    def __init__(self, Game, Character, Refinements, HP):
-        self.Name = 'Nilou Signature EM'
+class KeyofKhajNisutBuff: 
+    def __init__(self, Game, Character, Refinements):
+        self.Name = 'KeyofKhajNisut EM'
         self.Proportional = True
         self.Type = 'Buff'
 
         self.Game = Game
         self.Character = Character
-        self.HP = HP
 
         assert Refinements in [1, 2, 3, 4, 5]
         self.Multiplier1 = [0.0012, 0.0015, 0.0018, 0.0021, 0.0024][Refinements-1]
@@ -24,7 +27,7 @@ class NilouSignatureBuff:
 
     
     def Apply(self, BuffedCharacter, Print):
-        HP = self.Character.BuffedStat['HP'] if self.Character is not None else self.HP
+        HP = self.Character.BuffedStat['BaseHP'] * (1 + self.Character.BuffedStat['%HP']) + self.Character.BuffedStat['AdditiveHP']
 
         if BuffedCharacter == self.Character:
             Stat1 = 'EM'
@@ -40,8 +43,4 @@ class NilouSignatureBuff:
         BuffedCharacter.FinalStat[Stat2] += Amount2
         if Print:
             print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat2:<25}: +{Amount2:<8.3f} | -> {BuffedCharacter.FinalStat[Stat2]:<5.3f}")
-
-def AddNilouSignatureTemp(Game, Refinements, HP):
-    Game.AddEffect(NilouSignatureBuff(Game, Character=None, Refinements=Refinements, HP=HP))
-
     

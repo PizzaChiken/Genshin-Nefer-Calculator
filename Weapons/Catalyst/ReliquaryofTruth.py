@@ -1,4 +1,7 @@
-class NeferSignature: # 네페르전무
+# 버프 체크리스트
+# 캐릭터 원미/치피 (Buff)  (complete) 
+
+class ReliquaryofTruth: # 네페르전무
     def __init__(self, Game, Character, Refinements, LunarBloomActive, SkillActive):
         assert Refinements in [1, 2, 3, 4, 5]
         self.StatList = {
@@ -6,11 +9,11 @@ class NeferSignature: # 네페르전무
             'CD' : 0.882,
             'CR' : [0.08, 0.10, 0.12, 0.14, 0.16][Refinements-1]
         }
-        self.EffectList = [NeferSignatureeBuff(Game, Character, Refinements, LunarBloomActive, SkillActive)]
+        self.EffectList = [ReliquaryofTruthBuff(Game, Character, Refinements, LunarBloomActive, SkillActive)]
 
-class NeferSignatureeBuff: 
+class ReliquaryofTruthBuff: 
     def __init__(self, Game, Character, Refinements, LunarBloomActive, SkillActive):
-        self.Name = 'Nefer Signature Buffs'
+        self.Name = 'ReliquaryofTruth Buffs'
         self.Proportional = False
         self.Type = 'Buff'
 
