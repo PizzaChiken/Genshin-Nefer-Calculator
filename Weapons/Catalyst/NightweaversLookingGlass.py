@@ -1,3 +1,5 @@
+# 밤을 엮는 거울
+
 # 버프 체크리스트
 # 캐릭터 원미 (Buff)                         (complete) 
 # 파티 개화 피증, 달개화 피증 (AttackEffect)   (complete) 
@@ -57,7 +59,7 @@ class NightweaversLookingGlassAttackEffect:
         self.ReactionBonus3 = [0.4, 0.5, 0.6, 0.7, 0.8][Refinements-1]
         self.BothActive = SkillActive and LunarBloomActive
 
-    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
+    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, DMGType):
         if AttackType == 'Bloom':
             if self.BothActive:
                 AttackingCharacterStat['ReactionBonus'] += self.ReactionBonus1

@@ -12,59 +12,27 @@ from .BaseCharacter import BaseCharacter
 
 class NahidaClass(BaseCharacter):
     def __init__(self, Game : Game, Level=90, SkillLevel = {'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation = 0, CatalyzeActive=False, C4Cnt=1):
-        self.Name = 'Nahida'
-        self.Element = 'Dendro'
-        self.Game = Game
-
+        super().__init__(Game=Game,
+                         Name='Nahida',
+                         Weapon='Catalyst',
+                         Element='Dendro',
+                         Level=Level,
+                         SkillLevel=SkillLevel,
+                         Constellation=Constellation)
         if Level == 90:
-            BaseHP = 10360
-            BaseATK = 299
-            BaseDEF = 630
+            self.BaseStat['BaseHP'] += 10360
+            self.BaseStat['BaseATK'] += 299
+            self.BaseStat['BaseDEF'] += 630
         elif Level == 100:
-            BaseHP = 11096
-            BaseATK = 366
-            BaseDEF = 675
+            self.BaseStat['BaseHP'] += 11096
+            self.BaseStat['BaseATK'] += 366
+            self.BaseStat['BaseDEF'] += 675
         else:
             raise ValueError
+        self.BaseStat['EM'] += 115
 
-        self.BaseStat = {
-            'Level' : Level,
-            'BaseHP' : BaseHP,
-            'BaseATK' : BaseATK,
-            'BaseDEF' : BaseDEF,
-            '%HP' : 0,
-            '%ATK' : 0,
-            '%DEF' : 0,
-            'AdditiveHP' : 0,
-            'AdditiveATK' : 0,
-            'AdditiveDEF' : 0,
-            'EM' : 115,
-            'ER' : 1.0,
-            'CR' : 0.05,
-            'CD' : 0.5,
-            'BaseDMGMultiplier' : 0, # 곱연산 피증 (ex,느비 특성) (버프 계산시 100% 뺴야함)
-            'AdditiveBaseDMGBonus' : 0,
-            'PhysicalDMGBonus' : 0,
-            'AnemoDMGBonus' : 0,
-            'GeoDMGBonus' : 0,
-            'ElectroDMGBonus' : 0,
-            'DendroDMGBonus' : 0,
-            'HydroDMGBonus' : 0,
-            'PyroDMGBonus' : 0,
-            'CyroDMGBonus' : 0,
-            'DMGBonus' : 0,
-            'ReactionBonus' : 0,
-            'DEFIgnored' : 0,
-            'LunarChargedBaseDMGBonus' : 0,
-            'LunarBloomBaseDMGBonus' : 0,
-            'ElevatedMultiplier' : 0, # 승격(버프 계산시 100% 뺴야함)
-            'TransformativeCR' : 0,
-            'TransformativeCD' : 0
-        }
         self.C4Cnt = 1
         self.CatalyzeActive = CatalyzeActive
-        self.SkillLevel = SkillLevel
-        self.Constellation = Constellation
 
         if self.Constellation >= 3:
             self.SkillLevel['Skill'] += 3
@@ -78,173 +46,112 @@ class NahidaClass(BaseCharacter):
         self.Game.AddEffect(NahidaC2Debuff(Game, self))
         self.Game.AddEffect(NahidaC2AttackEffect(Game, self))
         self.Game.AddEffect(NahidaC4Buff(Game, self, C4Cnt))
-
-        self.TotalDamageDealt = 0
     
         
     def NA1(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 일반공격 1단'
-        AttackType = 'Basic'
-        AttackElement = 'Dendro'
-        SkillType = 'Normal'
-        DMGType = 'Normal'
-        
-        if self.SkillLevel['Skill'] == 10:
+
+        if self.SkillLevel['Normal'] == 10:
             Multiplier = {'HP' : 0., 'ATK' : 0.725, 'DEF' : 0., 'EM' : 0.}
-        elif self.SkillLevel['Skill'] == 13:
+        elif self.SkillLevel['Normal'] == 13:
             Multiplier = {'HP' : 0., 'ATK' : 0.856, 'DEF' : 0., 'EM' : 0}
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 일반공격 1단',
+                           AttackType = 'Basic',
+                           AttackElement = 'Dendro',
+                           DMGType = 'Normal',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def NA2(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 일반공격 2단'
-        AttackType = 'Basic'
-        AttackElement = 'Dendro'
-        SkillType = 'Normal'
-        DMGType = 'Normal'
-        
-        if self.SkillLevel['Skill'] == 10:
+
+        if self.SkillLevel['Normal'] == 10:
             Multiplier = {'HP' : 0., 'ATK' : 0.666, 'DEF' : 0., 'EM' : 0.}
-        elif self.SkillLevel['Skill'] == 13:
+        elif self.SkillLevel['Normal'] == 13:
             Multiplier = {'HP' : 0., 'ATK' : 0.786, 'DEF' : 0., 'EM' : 0}
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 일반공격 2단',
+                           AttackType = 'Basic',
+                           AttackElement = 'Dendro',
+                           DMGType = 'Normal',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def NA3(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 일반공격 3단'
-        AttackType = 'Basic'
-        AttackElement = 'Dendro'
-        SkillType = 'Normal'
-        DMGType = 'Normal'
-        
-        if self.SkillLevel['Skill'] == 10:
+
+        if self.SkillLevel['Normal'] == 10:
             Multiplier = {'HP' : 0., 'ATK' : 0.826, 'DEF' : 0., 'EM' : 0.}
-        elif self.SkillLevel['Skill'] == 13:
+        elif self.SkillLevel['Normal'] == 13:
             Multiplier = {'HP' : 0., 'ATK' : 0.975, 'DEF' : 0., 'EM' : 0}
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 일반공격 3단',
+                           AttackType = 'Basic',
+                           AttackElement = 'Dendro',
+                           DMGType = 'Normal',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def NA4(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 일반공격 4단'
-        AttackType = 'Basic'
-        AttackElement = 'Dendro'
-        SkillType = 'Normal'
-        DMGType = 'Normal'
-        
-        if self.SkillLevel['Skill'] == 10:
+
+        if self.SkillLevel['Normal'] == 10:
             Multiplier = {'HP' : 0., 'ATK' : 1.051, 'DEF' : 0., 'EM' : 0.}
-        elif self.SkillLevel['Skill'] == 13:
+        elif self.SkillLevel['Normal'] == 13:
             Multiplier = {'HP' : 0., 'ATK' : 1.241, 'DEF' : 0., 'EM' : 0}
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 일반공격 4단',
+                           AttackType = 'Basic',
+                           AttackElement = 'Dendro',
+                           DMGType = 'Normal',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def Charge(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 강공격'
-        AttackType = 'Basic'
-        AttackElement = 'Dendro'
-        SkillType = 'Charge'
-        DMGType = 'Charge'
-        
-        if self.SkillLevel['Skill'] == 10:
+
+        if self.SkillLevel['Normal'] == 10:
             Multiplier = {'HP' : 0., 'ATK' : 2.376, 'DEF' : 0., 'EM' : 0.}
-        elif self.SkillLevel['Skill'] == 13:
+        elif self.SkillLevel['Normal'] == 13:
             Multiplier = {'HP' : 0., 'ATK' : 2.805, 'DEF' : 0., 'EM' : 0}
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 강공격',
+                           AttackType = 'Basic',
+                           AttackElement = 'Dendro',
+                           DMGType = 'Charge',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def C6Damage(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 6돌 피해'
-        AttackType = 'Basic'
-        AttackElement = 'Dendro'
-        SkillType = 'Skill'
-        DMGType = 'Skill'
-        
+
         Multiplier = {'HP' : 0., 'ATK' : 2.00, 'DEF' : 0., 'EM' : 4.00}
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 6돌 피해',
+                           AttackType = 'Basic',
+                           AttackElement = 'Dendro',
+                           DMGType = 'Skill',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def SkillPress(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 원소스킬 짧은터치'
-        AttackType = 'Basic'
-        AttackElement = 'Dendro'
-        SkillType = 'Skill'
-        DMGType = 'Skill'
         
         if self.SkillLevel['Skill'] == 10:
             Multiplier = {'HP' : 0., 'ATK' : 1.771, 'DEF' : 0., 'EM' : 0.}
@@ -253,26 +160,17 @@ class NahidaClass(BaseCharacter):
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 원소스킬 짧은터치',
+                           AttackType = 'Basic',
+                           AttackElement = 'Dendro',
+                           DMGType = 'Skill',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def SkillHold(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 원소스킬 홀드'
-        AttackType = 'Basic'
-        AttackElement = 'Dendro'
-        SkillType = 'Skill'
-        DMGType = 'Skill'
-        
+
         if self.SkillLevel['Skill'] == 10:
             Multiplier = {'HP' : 0., 'ATK' : 2.347, 'DEF' : 0., 'EM' : 0.}
         elif self.SkillLevel['Skill'] == 13:
@@ -280,26 +178,17 @@ class NahidaClass(BaseCharacter):
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 원소스킬 홀드',
+                           AttackType = 'Basic',
+                           AttackElement = 'Dendro',
+                           DMGType = 'Skill',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def TriKarmaPurification(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 삼업의 정화'
-        AttackType = 'Basic'
-        AttackElement = 'Dendro'
-        SkillType = 'Skill'
-        DMGType = 'Skill'
-        
+
         if self.SkillLevel['Skill'] == 10:
             Multiplier = {'HP' : 0., 'ATK' : 1.858, 'DEF' : 0., 'EM' : 3.715}
         elif self.SkillLevel['Skill'] == 13:
@@ -307,27 +196,14 @@ class NahidaClass(BaseCharacter):
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
-    
-    def TriKarmaPurificationCombine(self, TargetedEnemy, Count, Reaction=None, Print=True):
-        DMG = 0
-        for i in range(Count):
-            DMG += self.TriKarmaPurification(TargetedEnemy, Reaction, Print=False)
-
-        if Print:
-            print(f'{self.Name} 삼업의 정화 {Count}회 총합 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 삼업의 정화',
+                           AttackType = 'Basic',
+                           AttackElement = 'Dendro',
+                           DMGType = 'Skill',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def NA1Combine(self, TargetedEnemy, Reaction=None, ReactionC6=None, Print=True):
         DMG = 0
@@ -379,6 +255,13 @@ class NahidaClass(BaseCharacter):
             print(f'{self.Name} 강공격 총합 피해 : {DMG}')
         return DMG
     
+    def Rotation(self, TargetedEnemey, Count, Reaction=None):
+        DMG = 0
+        DMG += self.SkillPress(TargetedEnemey, Reaction=Reaction, Print=True)
+        for i in range(Count):
+            DMG += self.TriKarmaPurification(TargetedEnemey, Reaction=Reaction, Print=True)
+        return DMG
+    
 
 class NahidaQAttackEffect: 
     def __init__(self, Game, Character):
@@ -388,7 +271,7 @@ class NahidaQAttackEffect:
         self.Game = Game
         self.Character = Character
     
-    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
+    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, DMGType):
         if AttackingCharacter == self.Character:
             if '삼업의 정화' in AttackName:
                 PyroCnt = 0
@@ -446,7 +329,7 @@ class NahidaP2AttackEffect:
         self.Game = Game
         self.Character = Character
     
-    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
+    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, DMGType):
         if AttackingCharacter == self.Character:
             if '삼업의 정화' in AttackName:
                 EM = self.Character.FinalStat['EM']
@@ -479,7 +362,7 @@ class NahidaC2AttackEffect:
         self.Game = Game
         self.Character = Character
 
-    def Apply(self, AttackCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
+    def Apply(self, AttackCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, DMGType):
         if self.Character.Constellation >= 2:
             if AttackType in ['Bloom', 'Hyperbloom','Burgeon', 'Burning']:
                 AttackingCharacterStat['TransformativeCR'] += 0.2

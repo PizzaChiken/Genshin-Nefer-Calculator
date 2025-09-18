@@ -11,58 +11,27 @@ from .BaseCharacter import BaseCharacter
 
 class NilouClass(BaseCharacter):
     def __init__(self, Game : Game, Level=90, SkillLevel = {'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation = 0, P1Active=False):
-        self.Name = 'Nilou'
-        self.Element = 'Hydro'
-        self.Game = Game
-
+        super().__init__(Game=Game,
+                         Name='Nilou',
+                         Weapon='Sword',
+                         Element='Hydro',
+                         Level=Level,
+                         SkillLevel=SkillLevel,
+                         Constellation=Constellation)
+ 
         if Level == 90:
-            BaseHP = 15185
-            BaseATK = 230
-            BaseDEF = 729
+            self.BaseStat['BaseHP'] += 15185
+            self.BaseStat['BaseATK'] += 230
+            self.BaseStat['BaseDEF'] += 729
         elif Level == 100:
-            BaseHP = 16264
-            BaseATK = 281
-            BaseDEF = 780
+            self.BaseStat['BaseHP'] += 16264
+            self.BaseStat['BaseATK'] += 281
+            self.BaseStat['BaseDEF'] += 780
         else:
             raise ValueError
+        self.BaseStat['%HP'] += 0.288
 
-        self.BaseStat = {
-            'Level' : Level,
-            'BaseHP' : BaseHP,
-            'BaseATK' : BaseATK,
-            'BaseDEF' : BaseDEF,
-            '%HP' : 0.288,
-            '%ATK' : 0,
-            '%DEF' : 0,
-            'AdditiveHP' : 0,
-            'AdditiveATK' : 0,
-            'AdditiveDEF' : 0,
-            'EM' : 0,
-            'ER' : 1.0,
-            'CR' : 0.05,
-            'CD' : 0.5,
-            'BaseDMGMultiplier' : 0, # 곱연산 피증 (ex,느비 특성) (버프 계산시 100% 뺴야함)
-            'AdditiveBaseDMGBonus' : 0,
-            'PhysicalDMGBonus' : 0,
-            'AnemoDMGBonus' : 0,
-            'GeoDMGBonus' : 0,
-            'ElectroDMGBonus' : 0,
-            'DendroDMGBonus' : 0,
-            'HydroDMGBonus' : 0,
-            'PyroDMGBonus' : 0,
-            'CyroDMGBonus' : 0,
-            'DMGBonus' : 0,
-            'ReactionBonus' : 0,
-            'DEFIgnored' : 0,
-            'LunarChargedBaseDMGBonus' : 0,
-            'LunarBloomBaseDMGBonus' : 0,
-            'ElevatedMultiplier' : 0, # 승격(버프 계산시 100% 뺴야함)
-            'TransformativeCR' : 0,
-            'TransformativeCD' : 0
-        }
-        
-        self.SkillLevel = SkillLevel
-        self.Constellation = Constellation
+        self.P1Active= P1Active
 
         if self.Constellation >= 3:
             self.SkillLevel['Ult'] += 3
@@ -73,20 +42,12 @@ class NilouClass(BaseCharacter):
         self.Game.AddEffect(NilouP1Buff(Game, self))
         self.Game.AddEffect(NilouP2AttackEffect(Game, self))
         self.Game.AddEffect(NilouC2Debuff(Game, self))
-        self.Game.AddEffect(NilouC4AttackEffect(Game, self))
+        self.Game.AddEffect(NilouC4Buff(Game, self))
         self.Game.AddEffect(NilouC6Buff(Game, self))
-
-        self.TotalDamageDealt = 0
-        self.P1Active= P1Active
-    
+ 
         
     def Skill1(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 스킬 1단 (발동)'
-        AttackType = 'Basic'
-        AttackElement = 'Hydro'
-        SkillType = 'Skill'
-        DMGType = 'Skill'
-        
+
         if self.SkillLevel['Skill'] == 10:
             Multiplier = {'HP' : 0.0601, 'ATK' : 0., 'DEF' : 0., 'EM' : 0.}
         elif self.SkillLevel['Skill'] == 13:
@@ -94,26 +55,17 @@ class NilouClass(BaseCharacter):
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 스킬 1단 (발동)',
+                            AttackType = 'Basic',
+                            AttackElement = 'Hydro',
+                            DMGType = 'Skill',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def Skill2(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 스킬 2단 (검의춤)'
-        AttackType = 'Basic'
-        AttackElement = 'Hydro'
-        SkillType = 'Normal'
-        DMGType = 'Normal'
-        
+
         if self.SkillLevel['Skill'] == 10:
             Multiplier = {'HP' : 0.0819, 'ATK' : 0., 'DEF' : 0., 'EM' : 0.}
         elif self.SkillLevel['Skill'] == 13:
@@ -121,26 +73,17 @@ class NilouClass(BaseCharacter):
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 스킬 2단 (검의춤)',
+                            AttackType = 'Basic',
+                            AttackElement = 'Hydro',
+                            DMGType = 'Normal',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def Skill3(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 스킬 3단 (검의춤)'
-        AttackType = 'Basic'
-        AttackElement = 'Hydro'
-        SkillType = 'Normal'
-        DMGType = 'Normal'
-        
+
         if self.SkillLevel['Skill'] == 10:
             Multiplier = {'HP' : 0.0926, 'ATK' : 0., 'DEF' : 0., 'EM' : 0.}
         elif self.SkillLevel['Skill'] == 13:
@@ -148,26 +91,17 @@ class NilouClass(BaseCharacter):
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 스킬 3단 (검의춤)',
+                            AttackType = 'Basic',
+                            AttackElement = 'Hydro',
+                            DMGType = 'Normal',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def Skill4(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 스킬 4단 (수륜)'
-        AttackType = 'Basic'
-        AttackElement = 'Hydro'
-        SkillType = 'Skill'
-        DMGType = 'Skill'
-        
+
         if self.SkillLevel['Skill'] == 10:
             Multiplier = {'HP' : 0.0911, 'ATK' : 0., 'DEF' : 0., 'EM' : 0.}
         elif self.SkillLevel['Skill'] == 13:
@@ -175,72 +109,50 @@ class NilouClass(BaseCharacter):
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 스킬 4단 (수륜)',
+                            AttackType = 'Basic',
+                            AttackElement = 'Hydro',
+                            DMGType = 'Skill',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def Ult1(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 원소폭발 1단'
-        AttackType = 'Basic'
-        AttackElement = 'Hydro'
-        SkillType = 'Ult'
-        DMGType = 'Ult'
-        
-        if self.SkillLevel['Skill'] == 10:
+
+        if self.SkillLevel['Ult'] == 10:
             Multiplier = {'HP' : 0.332, 'ATK' : 0., 'DEF' : 0., 'EM' : 0.}
-        elif self.SkillLevel['Skill'] == 13:
+        elif self.SkillLevel['Ult'] == 13:
             Multiplier = {'HP' : 0.392, 'ATK' : 0., 'DEF' : 0., 'EM' : 0}
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 원소폭발 1단',
+                            AttackType = 'Basic',
+                            AttackElement = 'Hydro',
+                            DMGType = 'Ult',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def Ult2(self, TargetedEnemy, Reaction=None, Print=True):
-        AttackName = f'{self.Name} 원소폭발 2단'
-        AttackType = 'Basic'
-        AttackElement = 'Hydro'
-        SkillType = 'Ult'
-        DMGType = 'Ult'
-        
-        if self.SkillLevel['Skill'] == 10:
+
+        if self.SkillLevel['Ult'] == 10:
             Multiplier = {'HP' : 0.406, 'ATK' : 0., 'DEF' : 0., 'EM' : 0.}
-        elif self.SkillLevel['Skill'] == 13:
+        elif self.SkillLevel['Ult'] == 13:
             Multiplier = {'HP' : 0.479, 'ATK' : 0., 'DEF' : 0., 'EM' : 0}
         else:
             raise ValueError
 
-        AttackingCharacterStat = self.FinalStat.copy()
-        TargetedEnemyStat = TargetedEnemy.DebuffedStat.copy()
-
-        AttackingCharacterStat, TargetedEnemyStat = self.Game.ApplyAttackEffect(self, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
-
-        DMG = self.Game.ApplyDMG(AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
-
-        self.TotalDamageDealt += DMG
-
-        if Print:
-            print(f'{AttackName} 피해 : {DMG}')
-        return DMG
+        return self.Damage(TargetedEnemy=TargetedEnemy,
+                           Reaction=Reaction,
+                           AttackName = f'{self.Name} 원소폭발 2단',
+                            AttackType = 'Basic',
+                            AttackElement = 'Hydro',
+                            DMGType = 'Ult',
+                           Multiplier=Multiplier,
+                           Print=Print)
     
     def SkillCombine(self, TargetedEnemy, Print=True):
         DMG = 0
@@ -262,6 +174,11 @@ class NilouClass(BaseCharacter):
             print(f'{self.Name} 원소폭발 총합 피해 : {DMG}')
         return DMG
 
+    def Rotation(self, TargtedEnemy):
+        DMG = 0
+        DMG += self.SkillCombine(TargtedEnemy, True)
+
+        return DMG
 
 
 class NilouP1Buff: 
@@ -289,7 +206,7 @@ class NilouP2AttackEffect:
         self.Game = Game
         self.Character = Character
 
-    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
+    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, DMGType):
         if AttackType == 'Bloom':
             HP = self.Character.FinalStat['BaseHP'] * (1 + self.Character.FinalStat['%HP']) + self.Character.FinalStat['AdditiveHP']
             AttackingCharacterStat['ReactionBonus'] += min(4.0, (HP-30000)/1000 * 0.09)
@@ -316,22 +233,23 @@ class NilouC2Debuff:
             if Print:
                 print(f"Debuff | {self.Name :<40} | {DebuffedEnemy.Name:<20} | {Stat1:<25}: +{Amount:<8.3f} | -> {DebuffedEnemy.DebuffedStat[Stat1]:<5.3f}")
                 print(f"Debuff | {self.Name :<40} | {DebuffedEnemy.Name:<20} | {Stat2:<25}: +{Amount:<8.3f} | -> {DebuffedEnemy.DebuffedStat[Stat2]:<5.3f}")
-
-class NilouC4AttackEffect: 
+    
+class NilouC4Buff: 
     def __init__(self, Game, Character):
         self.Name = 'Nilou C4 UltDMGBonus'
-        self.Type = 'AttackEffect'
+        self.Proportional = False
+        self.Type = 'Buff'
         
         self.Game = Game
         self.Character = Character
 
-    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
-        if AttackingCharacter == self.Character:
-            if self.Character.Constellation >= 4:
-                if SkillType == 'Ult':
-                    AttackingCharacterStat['DMGBonus'] += 0.5
-            
-        return AttackingCharacterStat, TargetedEnemyStat
+    def Apply(self, BuffedCharacter, Print):
+        if self.Character.Constellation >= 4:
+            Stat = 'UltDMGBonus'
+            Amount = 0.5
+            BuffedCharacter.BuffedStat[Stat] += Amount
+            if Print:
+                print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.BuffedStat[Stat]:<5.3f}")
     
 class NilouC6Buff: 
     def __init__(self, Game, Character):

@@ -35,11 +35,11 @@ Enemy = BaseEnemyClass(Calculator)
 Calculator.AddEnemy(Enemy)
 
 # 3. 캐릭터 1 추가
-NeferConstellation = 6
-NeferRefinements = 5
-Nefer = NeferClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=NeferConstellation, Moonsign=2)
+NeferConstellation = 2
+NeferRefinements = 1
+Nefer = NeferClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=NeferConstellation)
 Nefer.AddWeapon(ReliquaryofTruth(Calculator, Nefer, NeferRefinements, LunarBloomActive=True, SkillActive=True))
-Nefer.AddArtifactSet(NightOfTheSkysUnveiling(Calculator,Nefer, PC=4, Moonsign=2))
+Nefer.AddArtifactSet(NightOfTheSkysUnveiling(Calculator,Nefer, PC=4))
 Nefer.AddArtifacts([
     {'AdditiveHP':4780, 'AdditiveATK':311, '%HP':0.466*0, '%ATK':0.466*0, '%DEF':0.583*0, 'EM':187*2, 'ER':0.518*0, 'DendroDMGBonus':0.466*0, 'PhysicalDMGBonus':0.583*0, 'CR':0.311*0, 'CD':0.622*1}, # 주옵
     {'AdditiveHP':254*0, 'AdditiveATK':17*2, 'AdditiveDEF':20*0, '%HP':0.050*0, '%ATK':0.050*2, '%DEF':0.062*0, 'EM':20*6, 'ER':0.055*0, 'CR':0.033*8, 'CD':0.066*12}, # 부옵
@@ -47,20 +47,20 @@ Nefer.AddArtifacts([
 Calculator.AddCharacter(Nefer)
 
 # 4. 캐릭터 2 추가
-LaumaConstellation = 6
-LaumaRefinements = 5
-Lauma = LaumaClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=LaumaConstellation, Moonsign=2)
+LaumaConstellation = 2
+LaumaRefinements = 1
+Lauma = LaumaClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=LaumaConstellation)
 Lauma.AddWeapon(NightweaversLookingGlass(Calculator, Lauma, LaumaRefinements, SkillActive=True, LunarBloomActive=True))
-Lauma.AddArtifactSet(SilkenMoonsSerenade(Calculator, Lauma, PC=4, Moonsign=2))
 Lauma.AddArtifacts([
+    {'EM' : 160}, # 원마 22셋
     {'AdditiveHP':4780, 'AdditiveATK':311, '%HP':0.466*0, '%ATK':0.466*0, '%DEF':0.583*0, 'EM':187*3, 'ER':0.518*0, 'DendroDMGBonus':0.466*0, 'PhysicalDMGBonus':0.583*0, 'CR':0.311*0, 'CD':0.622*0}, # 주옵
-    {'AdditiveHP':254*0, 'AdditiveATK':17*0, 'AdditiveDEF':20*0, '%HP':0.050*0, '%ATK':0.050*2, '%DEF':0.062*0, 'EM':20*6, 'ER':0.055*10, 'CR':0.033*8, 'CD':0.066*4},
+    {'AdditiveHP':254*0, 'AdditiveATK':17*0, 'AdditiveDEF':20*0, '%HP':0.050*0, '%ATK':0.050*2, '%DEF':0.062*0, 'EM':20*6, 'ER':0.055*8, 'CR':0.033*10, 'CD':0.066*4},
     ]) 
 Calculator.AddCharacter(Lauma)
 
 # 5. 캐릭터 3 추가
-NahidaConstellation = 6
-NahidaRefinements = 5
+NahidaConstellation = 2
+NahidaRefinements = 1
 Nahida = NahidaClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=NahidaConstellation, CatalyzeActive=False, C4Cnt=1)
 Nahida.AddWeapon(AThousandFloatingDreams(Calculator, Nahida, NahidaRefinements, Cnt=[2, 1]))
 Nahida.AddArtifactSet(DeepwoodMemories(Calculator, Nahida, PC=4))
@@ -71,10 +71,11 @@ Nahida.AddArtifacts([
 Calculator.AddCharacter(Nahida)
 
 # 6. 캐릭터 4 추가
-NilouConstellation = 6
-NilouRefinements = 5
-Nilou = NilouClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=NilouConstellation, P1Active=True)
+NilouConstellation = 0
+NilouRefinements = 1
+Nilou = NilouClass(Calculator, Level=90, SkillLevel={'Normal' : 10, 'Skill' : 10, 'Ult' : 10}, Constellation=NilouConstellation, P1Active=False)
 Nilou.AddWeapon(KeyofKhajNisut(Calculator, Nilou, NilouRefinements))
+Lauma.AddArtifactSet(SilkenMoonsSerenade(Calculator, Nilou, PC=4))
 Nilou.AddArtifacts([
     {'AdditiveHP':4780, 'AdditiveATK':311, '%HP':0.466*3, '%ATK':0.466*0, '%DEF':0.583*0, 'EM':187*0, 'ER':0.518*0, 'DendroDMGBonus':0.466*0, 'PhysicalDMGBonus':0.583*0, 'CR':0.311*0, 'CD':0.622*0}, # 주옵
     {'AdditiveHP':254*15, 'AdditiveATK':17*0, 'AdditiveDEF':20*0, '%HP':0.050*6, '%ATK':0.050*0, '%DEF':0.062*0, 'EM':20*2, 'ER':0.055*0, 'CR':0.033*5, 'CD':0.066*2},
@@ -96,27 +97,10 @@ Calculator.DisplayStat('Final')
 # 10. 피해 계산
 TotalDMG = 0
 
-
-# 10.1. 캐릭터 1 사이클 피해 계산
-TotalDMG += Nefer.SkillStart(Enemy, Reaction=None, Print=True)
-TotalDMG += Nefer.SkillCACombine(Enemy, Print=True)
-TotalDMG += Nefer.SkillCACombine(Enemy, Print=True)
-TotalDMG += Nefer.SkillCACombine(Enemy, Print=True)
-TotalDMG += Nefer.SkillStart(Enemy, Reaction=None, Print=True)
-TotalDMG += Nefer.SkillCACombine(Enemy, Print=True)
-TotalDMG += Nefer.SkillCACombine(Enemy, Print=True)
-TotalDMG += Nefer.SkillCACombine(Enemy, Print=True)
-
-# 10.2. 캐릭터 2 사이클 피해 계산
-TotalDMG += Lauma.SkillPress(Enemy, Reaction=None, Print=True)
-TotalDMG += Lauma.FrostgroveSanctuaryCombine(Enemy, Count=8, Print=True)
-
-# 10.3. 캐릭터 3 사이클 피해 계산
-TotalDMG += Nahida.SkillPress(Enemy, Reaction=None, Print=True)
-TotalDMG += Nahida.TriKarmaPurificationCombine(Enemy, Count=8, Reaction=None, Print=True)
-
-# 10.4. 캐릭터 4 사이클 피해 계산
-TotalDMG += Nilou.SkillCombine(Enemy, Print=True)
+TotalDMG += Nefer.Roatation(Enemy)
+TotalDMG += Lauma.Rotation(Enemy, EHold=False, Stack=0, Count=8)
+TotalDMG += Nahida.Rotation(Enemy, Count=9, Reaction=None)
+TotalDMG += Nilou.Rotation(Enemy)
 
 
 # 11. 결과 표시

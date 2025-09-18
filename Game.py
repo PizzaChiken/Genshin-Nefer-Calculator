@@ -14,6 +14,7 @@ class Game:
         self.AttackEffectList = []
 
         self._OnField = None
+        self.Moonsign = 0
 
         self.PrintLevel = 0 # 0: 출력 안함 1: 버프, 디버프, Attack Effect 2: 공격시 스탯
 
@@ -92,40 +93,13 @@ class Game:
             for Debuff in self.DebuffList:
                 Debuff.Apply(Enemy, Print)
 
-    def ApplyAttackEffect(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
-        """
-        AttackElement : 공격 원소 타입 : ['Physical', 'Pyro', 'Hydro', 'Electro', 'Anemo', 'Cryo', 'Geo', 'Dendro']
-        Reaction : 공격 원소 반응 : ['촉진', '발산', '융해', '증발']
-        AttackType : 공격 방식 : ['Basic', 'DirectLunarCharged', 'DirectLunarBloom']
-        SkillType : 어떤 스킬인지 [Normal, Charge, Plunging, Skill, Ult]
-        DMGType : 어떤 스킬피해인지 [Normal, Charge, Plunging, Skill, Ult]
-        ]
-        """
-        assert AttackElement in ['Physical', 'Anemo', 'Geo', 'Electro', 'Dendro', 'Hydro', 'Pyro', 'Cyro']
-        assert Reaction in [None, '촉진', '발산', '융해', '증발']
-        assert AttackType in ['Basic', 
-                              'DirectLunarCharged', 
-                              'DirectLunarBloom', 
-                              'Bloom', 
-                              'Burgeon', 
-                              'Hyperbloom', 
-                              'Burning', 
-                              'Overloaded',
-                              'ElectroCharged',
-                              'LunarCharged',
-                              'Superconduct',
-                              'Swirl',
-                              'Shatter']
-        assert SkillType in [None, 'Normal', 'Charge', 'Plunging', 'Skill', 'Ult']
-        assert DMGType in [None, 'Normal', 'Charge', 'Plunging', 'Skill', 'Ult']
-        if AttackType in ['DirectLunarCharged', 'DirectLunarBloom']:
-            assert DMGType == Reaction == None
+    def ApplyAttackEffect(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, DMGType):
 
         if self.PrintLevel >= 2:
             print(f'AttackName | {AttackName}')
 
         for AttackEffect in self.AttackEffectList:
-            AttackingCharacterStatNew, TargetedEnemyStatNew = AttackEffect.Apply(AttackingCharacter, TargetedEnemy, AttackingCharacterStat.copy(), TargetedEnemyStat.copy(), AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType)
+            AttackingCharacterStatNew, TargetedEnemyStatNew = AttackEffect.Apply(AttackingCharacter, TargetedEnemy, AttackingCharacterStat.copy(), TargetedEnemyStat.copy(), AttackName, AttackElement, Reaction, AttackType, DMGType)
             
             if self.PrintLevel >= 2:
                 for Stat in AttackingCharacterStat.keys():
@@ -142,40 +116,7 @@ class Game:
         return AttackingCharacterStat, TargetedEnemyStat
         
 
-    def ApplyDMG(self, AttackName, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier):
-        '''
-        목표 객체에게 가하는 데미지(격변 제외)를 계산하고 적용하는 함수
-        '''
-        assert AttackElement in ['Physical', 'Anemo', 'Geo', 'Electro', 'Dendro', 'Hydro', 'Pyro', 'Cyro']
-        assert Reaction in [None, '촉진', '발산', '융해', '증발']
-        assert AttackType in ['Basic', 
-                              'DirectLunarCharged', 
-                              'DirectLunarBloom', 
-                              'Bloom', 
-                              'Burgeon', 
-                              'Hyperbloom', 
-                              'Burning', 
-                              'Overloaded',
-                              'ElectroCharged',
-                              'LunarCharged',
-                              'Superconduct',
-                              'Swirl',
-                              'Shatter']
-        if AttackType in ['DirectLunarCharged', 
-                        'DirectLunarBloom', 
-                        'Bloom', 
-                        'Burgeon', 
-                        'Hyperbloom', 
-                        'Burning', 
-                        'Overloaded',
-                        'ElectroCharged',
-                        'LunarCharged',
-                        'Superconduct',
-                        'Swirl',
-                        'Shatter']:
-            assert Reaction == None
-        
-
+    def ApplyDMG(self, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, DMGType, Multiplier):
         if self.PrintLevel >= 3:
             HP = AttackingCharacterStat['BaseHP'] * (1 + AttackingCharacterStat['%HP']) + AttackingCharacterStat['AdditiveHP']
             ATK = AttackingCharacterStat['BaseATK'] * (1 + AttackingCharacterStat['%ATK']) + AttackingCharacterStat['AdditiveATK']
@@ -185,43 +126,31 @@ class Game:
             print(f'{'Multiplier':20} | {Multiplier}')
             print(f'{'Reaction':20} | {Reaction}')
             print(f'{'AttackElement':20} | {AttackElement}')
+            print(f'{'DMGType':20} | {DMGType}')
             print(f'{'Level':20} | {AttackingCharacterStat["Level"]}')
+            print(f'{'EnemyLevel':20} | {TargetedEnemyStat["Level"]}')
             print(f'{'HP':20} | {HP:.0f}')
             print(f'{'ATK':20} | {ATK:.0f}')
             print(f'{'DEF':20} | {DEF:.0f}')
             print(f'{'EM':20} | {AttackingCharacterStat["EM"]:.0f}')
-            print(f'{'ER':20} | {AttackingCharacterStat["ER"]*100:.0f}%')
-            print(f'{'CR':20} | {AttackingCharacterStat["CR"]*100:.0f}%')
-            print(f'{'CD':20} | {AttackingCharacterStat["CD"]*100:.0f}%')
-            print(f'{AttackElement+'DMGBonus':20} | {AttackingCharacterStat[AttackElement+'DMGBonus']*100:.0f}%')
-            print(f'{'DMGBonus':20} | {AttackingCharacterStat["DMGBonus"]*100:.0f}%')
-            print(f'{'BaseDMGMultiplier':20} | {AttackingCharacterStat["BaseDMGMultiplier"]*100:.0f}%')
-            print(f'{'AdditiveBaseDMGBonus':20} | {AttackingCharacterStat["AdditiveBaseDMGBonus"]}')
-            print(f'{'ReactionBonus':20} | {AttackingCharacterStat["ReactionBonus"]*100:.0f}%')
-            print(f'{'DEFIgnored':20} | {AttackingCharacterStat["DEFIgnored"]*100:.0f}%')
-            print(f'{'LunarChargedBaseDMGBonus':20} | {AttackingCharacterStat["LunarChargedBaseDMGBonus"]*100:.0f}%')
-            print(f'{'LunarBloomBaseDMGBonus':20} | {AttackingCharacterStat["LunarBloomBaseDMGBonus"]*100:.0f}%')
-            print(f'{'ElevatedMultiplier':20} | {AttackingCharacterStat["ElevatedMultiplier"]*100:.0f}%')
-            print(f'{'TransformativeCR':20} | {AttackingCharacterStat["TransformativeCR"]*100:.0f}%')
-            print(f'{'TransformativeCD':20} | {AttackingCharacterStat["TransformativeCD"]*100:.0f}%')
-            print(f'{'EnemyLevel':20} | {TargetedEnemyStat["Level"]}')
-            print(f'{'Enemy'+AttackElement+'Res':20} | {TargetedEnemyStat[AttackElement+'Res']*100:.0f}%')
-            print(f'{'EnemyDMGReduction':20} | {TargetedEnemyStat["DMGReduction"]*100:.0f}%')
-            print(f'{'EnemyDEFReduction':20} | {TargetedEnemyStat["DEFReduction"]*100:.0f}%')        
-            print('\n')
-
+            for key in AttackingCharacterStat.keys():
+                if key not in ['Level', 'BaseHP', 'BaseATK', 'BaseDEF', '%HP', '%ATK', '%DEF', 'AdditiveHP', 'AdditiveATK', 'AdditiveDEF', 'EM']:
+                    print(f'{key:20} | {AttackingCharacterStat[key]*100:.0f}')
+            for key in TargetedEnemyStat.keys():
+                if key != 'Level':
+                    print(f'{key:20} | {TargetedEnemyStat[key]*100:.0f}')
         
         if AttackType == 'Basic':
-            FinalDMG = self.CalcBasicDamage(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+            FinalDMG = self.CalcBasicDamage(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, DMGType, Multiplier)
 
         elif AttackType == 'DirectLunarCharged':
-            FinalDMG = self.CalcDirectLunarChargedDamage(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+            FinalDMG = self.CalcDirectLunarChargedDamage(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Multiplier)
         
         elif AttackType == 'DirectLunarBloom':
-            FinalDMG = self.CalcDirectLunarBloomDamage(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+            FinalDMG = self.CalcDirectLunarBloomDamage(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Multiplier)
 
         elif AttackType == 'LunarCharged':
-            FinalDMG = self.CalcLunarChargedDamage(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+            FinalDMG = self.CalcLunarChargedDamage(AttackingCharacterStat, TargetedEnemyStat, AttackElement)
         
         elif AttackType in ['Bloom', 
                             'Burgeon', 
@@ -233,7 +162,7 @@ class Game:
                             'Superconduct',
                             'Swirl',
                             'Shatter']:
-            FinalDMG = self.CalcTransformativeReactionDamage(AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier)
+            FinalDMG = self.CalcTransformativeReactionDamage(AttackingCharacterStat, TargetedEnemyStat, AttackElement, AttackType)
         
         else:
             raise ValueError        
@@ -243,42 +172,9 @@ class Game:
             print('\n')
 
         return FinalDMG
-    
-    def LunarChargedDamage(self, Characters, TargetedEnemy, Print=True):
-        CharacterDMGList = []
-        for Character in Characters:
-            LunarChargedDMG = Character.LunarCharged(TargetedEnemy)
-            CharacterDMGList.append((LunarChargedDMG, Character))
-
-        CharacterDMGList.sort(key=lambda x: x[0], reverse=True)
-        
-        FinalDMG = 0
-        dmg_details_str_list = []
-
-        for i, (DMG, Character) in enumerate(CharacterDMGList):
-            if i == 0:
-                Multiplier = 1
-            elif i == 1:
-                Multiplier = 0.5
-            else:
-                Multiplier = 1/12
-            
-            DealtDMG = DMG * Multiplier
-            
-            FinalDMG += DealtDMG
-            
-            Character.TotalDamageDealt += DealtDMG
-            
-            dmg_details_str_list.append(f'{Character.Name}: {DMG}')
-
-        if Print:
-            details_str = ", ".join(dmg_details_str_list)
-            print(f'파티 총합 달감전 피해: {FinalDMG} ({details_str})')
-        
-        return FinalDMG
 
     
-    def CalcBasicDamage(self, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier):
+    def CalcBasicDamage(self, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, DMGType, Multiplier):
         HP = AttackingCharacterStat['BaseHP'] * (1 + AttackingCharacterStat['%HP']) + AttackingCharacterStat['AdditiveHP']
         ATK = AttackingCharacterStat['BaseATK'] * (1 + AttackingCharacterStat['%ATK']) + AttackingCharacterStat['AdditiveATK']
         DEF = AttackingCharacterStat['BaseDEF'] * (1 + AttackingCharacterStat['%DEF']) + AttackingCharacterStat['AdditiveDEF']
@@ -312,7 +208,7 @@ class Game:
 
             BaseDMG = BaseDMG + ReactionMultiplier * LevelMultiplier * (1 + EMBonus + AttackingCharacterStat['ReactionBonus'])
     
-        DMGBonusMultiplier = (1 + +AttackingCharacterStat[f'{AttackElement}DMGBonus'] + AttackingCharacterStat['DMGBonus'] - TargetedEnemyStat['DMGReduction'])
+        DMGBonusMultiplier = (1 + AttackingCharacterStat[f'{AttackElement}DMGBonus'] + AttackingCharacterStat[f'{DMGType}DMGBonus'] + AttackingCharacterStat['DMGBonus'] - TargetedEnemyStat['DMGReduction'])
 
         k = (1 - AttackingCharacterStat['DEFIgnored']) * (1 - TargetedEnemyStat['DEFReduction'])
 
@@ -356,7 +252,7 @@ class Game:
 
         return FinalDMG
     
-    def CalcDirectLunarChargedDamage(self, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier):
+    def CalcDirectLunarChargedDamage(self, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Multiplier):
         HP = AttackingCharacterStat['BaseHP'] * (1 + AttackingCharacterStat['%HP']) + AttackingCharacterStat['AdditiveHP']
         ATK = AttackingCharacterStat['BaseATK'] * (1 + AttackingCharacterStat['%ATK']) + AttackingCharacterStat['AdditiveATK']
         DEF = AttackingCharacterStat['BaseDEF'] * (1 + AttackingCharacterStat['%DEF']) + AttackingCharacterStat['AdditiveDEF']
@@ -387,7 +283,7 @@ class Game:
 
         return FinalDMG
     
-    def CalcLunarChargedDamage(self, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier):
+    def CalcLunarChargedDamage(self, AttackingCharacterStat, TargetedEnemyStat, AttackElement):
         EM = AttackingCharacterStat['EM']
         Res = TargetedEnemyStat[f'{AttackElement}Res']
 
@@ -424,7 +320,7 @@ class Game:
 
         return FinalDMG
     
-    def CalcDirectLunarBloomDamage(self, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier):
+    def CalcDirectLunarBloomDamage(self, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Multiplier):
         HP = AttackingCharacterStat['BaseHP'] * (1 + AttackingCharacterStat['%HP']) + AttackingCharacterStat['AdditiveHP']
         ATK = AttackingCharacterStat['BaseATK'] * (1 + AttackingCharacterStat['%ATK']) + AttackingCharacterStat['AdditiveATK']
         DEF = AttackingCharacterStat['BaseDEF'] * (1 + AttackingCharacterStat['%DEF']) + AttackingCharacterStat['AdditiveDEF']
@@ -459,7 +355,7 @@ class Game:
 
         return FinalDMG
     
-    def CalcTransformativeReactionDamage(self, AttackingCharacterStat, TargetedEnemyStat, AttackElement, Reaction, AttackType, Multiplier):
+    def CalcTransformativeReactionDamage(self, AttackingCharacterStat, TargetedEnemyStat, AttackElement, AttackType):
         EM = AttackingCharacterStat['EM']
         Res = TargetedEnemyStat[f'{AttackElement}Res']
 
@@ -515,6 +411,45 @@ class Game:
 
         return FinalDMG
     
+    def LunarChargedDamage(self, Characters, TargetedEnemy, Print=True):
+        CharacterDMGList = []
+        for Character in Characters:
+            LunarChargedDMG = Character.LunarCharged(TargetedEnemy)
+            CharacterDMGList.append((LunarChargedDMG, Character))
+
+        CharacterDMGList.sort(key=lambda x: x[0], reverse=True)
+        
+        FinalDMG = 0
+        dmg_details_str_list = []
+
+        for i, (DMG, Character) in enumerate(CharacterDMGList):
+            if i == 0:
+                Multiplier = 1
+            elif i == 1:
+                Multiplier = 0.5
+            else:
+                Multiplier = 1/12
+            
+            DealtDMG = DMG * Multiplier
+            
+            FinalDMG += DealtDMG
+            
+            Character.TotalDamageDealt += DealtDMG
+            
+            dmg_details_str_list.append(f'{Character.Name}: {DealtDMG}')
+
+        if Print:
+            details_str = ", ".join(dmg_details_str_list)
+            print(f'파티 총합 달감전 피해: {FinalDMG} ({details_str})')
+        
+        return FinalDMG
+    
+    def LunarChargedDamageRotation(self, Characters, TargetedEnemy, Count):
+        DMG = 0
+        for i in range(Count):
+            DMG += self.LunarChargedDamage(Characters, TargetedEnemy, Print=True)
+        return DMG
+    
 class NotNordAttackEffect: 
     def __init__(self, Game, Character):
         self.Name = 'Not Nord LunarDMGBonus'
@@ -524,7 +459,7 @@ class NotNordAttackEffect:
         self.Character = Character
 
 
-    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, SkillType, DMGType):
+    def Apply(self, AttackingCharacter, TargetedEnemy, AttackingCharacterStat, TargetedEnemyStat, AttackName, AttackElement, Reaction, AttackType, DMGType):
         if AttackType in ['DirectLunarCharged', 'DirectLunarBloom', 'LunarCharged']:
             HP = self.Character.FinalStat['BaseHP'] * (1 + self.Character.FinalStat['%HP']) + self.Character.FinalStat['AdditiveHP']
             ATK = self.Character.FinalStat['BaseATK'] * (1 + self.Character.FinalStat['%ATK']) + self.Character.FinalStat['AdditiveATK']
@@ -532,13 +467,13 @@ class NotNordAttackEffect:
             EM = self.Character.FinalStat['EM']
 
             if self.Character.Element in ['Pyro', 'Cyro', 'Electro']:
-                Amount = min(0.36, ATK/100 * 0.012)
+                Amount = min(0.36, ATK/100 * 0.009)
             elif self.Character.Element in ['Anemo', 'Dendro']:
-                Amount = min(0.36, EM/100 * 0.03)
+                Amount = min(0.36, EM/100 * 0.025)
             elif self.Character.Element == 'Hydro':
-                Amount = min(0.36, HP/1000 * 0.008)
+                Amount = min(0.36, HP/1000 * 0.006)
             elif self.Character.Element == 'Geo':
-                Amount = min(0.36, DEF/100 * 0.012)
+                Amount = min(0.36, DEF/100 * 0.01)
     
             AttackingCharacterStat['ReactionBonus']  += Amount
     
@@ -592,4 +527,7 @@ class ElementalResonanceBuff: # (범용상황, 범용버프) + (범용상황, �
                 if Print:
                     print(f"Buff   | {self.Name:<40} | {BuffedCharacter.Name:<20} | {Stat:<25}: +{Amount:<8.3f} | -> {BuffedCharacter.BuffedStat[Stat]:<5.3f}")
             else:
-                raise ValueError
+                if Element in ['Electro', 'Anemo']:
+                    pass
+                else:
+                    raise ValueError

@@ -1,3 +1,5 @@
+# 숲의 기억
+
 # 버프 체크리스트
 # 적 내성깎 (Buff)  (complete) 
 
@@ -10,6 +12,8 @@ class DeepwoodMemories:
         }
         if PC == 4:
             self.EffectList = [DeepwoodMemoriesDebuff(Game, Character, PC)]
+        else:
+            self.EffectList = []
 
 # 파티버프
 class DeepwoodMemoriesDebuff: 
